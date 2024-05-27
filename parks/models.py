@@ -12,31 +12,19 @@ class User(AbstractUser):
 # When a user saves a lesson, a model is created from the json data and stored in the Lesson table.
 class Lesson(models.Model):
     url = models.URLField()
-
     title = models.TextField()
-
     parks = models.JSONField() # The parkCode is stored in the parks list.
-
     questionObjective = models.TextField()
-
     gradeLevel = models.TextField()
-
     commonCore = models.JSONField()
-
     subject = models.JSONField()
-
     duration = models.TextField()
-
     notes = models.TextField(blank=True)
-
     image = models.ImageField(upload_to='images/', blank=True)
-
     # https://www.geeksforgeeks.org/filefield-django-models/
     doc_upload = models.FileField(upload_to='uploads/%Y/%m/%d', blank=True)
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educator')
-
     date = models.DateTimeField(auto_now=False,  auto_now_add=True)
 
     def __str__(self):
-        return f'{self.title} / {self.educator}'
+        return f'{self.title} / {self.user}'
