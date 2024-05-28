@@ -11,9 +11,6 @@
 
         <!-- https://gist.github.com/RichLogan/9903043 -->
         <!-- Click the option/state and the event is triggered. -->
-        <!-- https://stackoverflow.com/questions/38390177/what-is-a-noreversematch-error-and-how-do-i-fix-it -->
-        <!-- https://stackoverflow.com/questions/72529252/how-to-get-select-option-value-in-views-django -->
-        <!-- https://stackoverflow.com/questions/7231157/how-to-submit-form-on-change-of-dropdown-list -->
         <form action="{% url 'parks' %}" method="post">
             {% csrf_token %}
             <select class="form-select" name="state" aria-label="Select a State" onchange="this.form.submit()">

@@ -19,18 +19,24 @@ def index(request):
 
 def parks(request):
 
-    print('Request', request)
+    if request.POST:
 
-    # data = json.loads(request.body)
+        print('Request', request)
 
-    state = request.POST['state']
+        state = request.POST['state']
 
-    print('State Name:', request.POST['state'])
+        print('State Name:', request.POST['state'])
 
-    # https://reintech.io/blog/connecting-to-external-api-in-django
-    url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
-    response = requests.get(url)
-    data = response.json()
+        # https://reintech.io/blog/connecting-to-external-api-in-django
+        url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
+        response = requests.get(url)
+        park_data = response.json()
 
-    # return JsonResponse({"message": "Response successful."}, status=201)
-    return JsonResponse(data)
+        return JsonResponse(park_data)
+        # return JsonResponse({ 'park_data': park_data })
+    
+    else:
+        return render(request, 'parks/index.html', { 'message': 'Let\'s explore national parks!' })
+        
+
+    
