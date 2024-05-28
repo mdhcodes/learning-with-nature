@@ -1,6 +1,6 @@
 import json
 import requests
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 
 from learning.settings import NP_API_KEY
@@ -30,10 +30,11 @@ def parks(request):
         # https://reintech.io/blog/connecting-to-external-api-in-django
         url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
         response = requests.get(url)
-        park_data = response.json()
+        park_data = response.json() # Dictionary
+
+        # Return only the data for the learning.
 
         return JsonResponse(park_data)
-        # return JsonResponse({ 'park_data': park_data })
     
     else:
         return render(request, 'parks/index.html', { 'message': 'Let\'s explore national parks!' })

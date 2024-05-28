@@ -11,9 +11,9 @@
 
         <!-- https://gist.github.com/RichLogan/9903043 -->
         <!-- Click the option/state and the event is triggered. -->
-        <form action="{% url 'parks' %}" method="post">
+        <form action="{% url 'parks' %}" method="post" class="state-selected">
             {% csrf_token %}
-            <select class="form-select" name="state" aria-label="Select a State" onchange="this.form.submit()">
+            <select id="select-state" class="form-select" name="state" aria-label="Select a State" onchange="this.form.submit()">
                 <option value="" selected>Select a State</option>
                 <option value="AK">Alaska</option>
                 <option value="AL">Alabama</option>
