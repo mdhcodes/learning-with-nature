@@ -1,48 +1,48 @@
 document.addEventListener('DOMContentLoaded', function() {
-    //  https://ridwanray.medium.com/django-and-fetch-api-form-submissions-without-page-reloading-dc5106598005
-    // "To prevent the page from reloading when the form is submitted, use JS Fetch API. Fetch API will be used to submit the form in the background and receive a response from the server." 
-   
-    const state_selected = document.querySelector('.state-selected');
+    
     const select = document.querySelector('select');
 
-    state_selected.addEventListener('submit', (e) => {        
-        
-        e.preventDefault();
+    select.addEventListener('change', () => {
 
-        select.addEventListener('change', () => {
+        const state = select.value;
+        // console.log('State:', state)
 
-            const state = state_selected.value;
-            console.log('State:', state)
-
-            // Send a POST request to the /parks route with the state value captured above.
-            fetch(`/parks/`, {
-            // fetch(`parks/`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    state: state
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log('Success:', result)
-
-                document.getElementById('park-info');
-                
-                
-            })
-            .catch(error => {
-                console.log('Error:', error)
-
-                document.getElementById('park-info').innerText = 'There was an error selecting a park. Please try again.'
-
-            });
-
-        });
-        
-        
+        get_parks(state);
     });
 
-
-    
-    
 });
+
+
+const get_parks = (state) => {
+    // console.log(state);
+    // console.log(NP_API_KEY.value);
+    const api_key = NP_API_KEY.value;
+
+    // Send a GET request to the National Parks Service with the state value captured above.
+    fetch(`https://developer.nps.gov/api/v1/parks?stateCode=${state}&api_key=${api_key}`)
+    .then(response => {
+        // console.log('Response:', response)
+        return response.json();
+    })
+    .then(result => {
+        console.log('Result:', result)
+        const parks = document.getElementById('parks');
+        const div = document.createElement('div');
+        const p = document.createElement('p'); 
+        p.innerHTML =  result.total;
+
+        console.log('Data:', result.data)
+
+        for (data in result.data) {
+            console.log(result.data[data]);
+        }
+
+        div.append(p);
+        parks.append(div);
+        
+    })
+    .catch(error => {
+        console.log('Error:', error)
+    });
+
+}

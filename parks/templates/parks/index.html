@@ -2,7 +2,11 @@
 
 {% load static %}
 
+{% load env_extras %}
+
 {% block body %}
+    <input id="NP_API_KEY" value="{% get_env_var 'NP_API_KEY' %}" type="hidden" />
+
     {% comment %} Dropdown to find a park by State OR by Topic {% endcomment %}
     
     <div class="container mb-3">
@@ -10,10 +14,8 @@
         <p>Find Parks by State:</p>
 
         <!-- https://gist.github.com/RichLogan/9903043 -->
-        <!-- Click the option/state and the event is triggered. -->
-        <form action="{% url 'parks' %}" method="post" class="state-selected">
-            {% csrf_token %}
-            <select id="select-state" class="form-select" name="state" aria-label="Select a State" onchange="this.form.submit()">
+        <!-- Select the option/state and the event is triggered. -->
+            <select id="select-state" class="form-select" name="state" aria-label="Select a State">
                 <option value="" selected>Select a State</option>
                 <option value="AK">Alaska</option>
                 <option value="AL">Alabama</option>
@@ -67,11 +69,10 @@
                 <option value="WI">Wisconsin</option>
                 <option value="WV">West Virginia</option>
                 <option value="WY">Wyoming</option>
-            </select>
-        </form>    
+            </select>   
     </div>
 
-    <div id="park-info">        
+    <div id="parks">        
     </div>
 
 {% endblock body %}
