@@ -32,8 +32,6 @@ def parks(request):
         response = requests.get(url)
         park_data = response.json() # Dictionary
 
-        # Return only the data for the learning.
-
         return JsonResponse(park_data)
     
     else:
