@@ -110,9 +110,10 @@ const get_parks = (state) => {
             park_link.innerHTML = result.data[data].name; 
             park_link.setAttribute('href', '#'); // The park_link event listener contains the endpoint to fetch when clicked.
             const park_code = result.data[data].parkCode;
+            const full_park_name = result.data[data].fullName;
             // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind
             // bind() will pass the variable park_code without invoking the get_park function.
-            park_link.addEventListener('click', park_learning.bind(null, park_code)); // get_park(park_code) immediately invokes the get_park function.
+            park_link.addEventListener('click', park_learning.bind(null, park_code, full_park_name)); // get_park(park_code) immediately invokes the get_park function.
             park_name.append(park_link);         
             div.append(park_name);
             park_city = document.createElement('p');
@@ -144,8 +145,9 @@ const get_parks = (state) => {
 }
 
 
-const park_learning = (park_code) => {
-    console.log('Park Code:', park_code)
+const park_learning = (park_code, full_park_name) => {
+    console.log('Park Code:', park_code);
+    console.log('Full Park Name:', full_park_name);
 
     const api_key = NP_API_KEY.value;
 
@@ -163,6 +165,7 @@ const park_learning = (park_code) => {
         // Hide the search-by-state and state-parks divs.
         document.getElementById('search-by-state').style.display = 'none';
         document.getElementById('state-parks').style.display = 'none';
+        document.getElementById('np-lessons').style.display = 'none';
 
         // Display the state-park div
         park_lessons.style.display = 'block';
@@ -204,50 +207,112 @@ const park_learning = (park_code) => {
         trunks.append(trunks_link);
         park_lessons.append(trunks);
 
-        
+        get_all_lessons(park_code, full_park_name);
 
-        // Scrape these webpages to create a parks app page. JSON data not found for these endpoints. 
-        // https://www.nps.gov/azru/learn/education/teachersguide.htm
-        // https://www.nps.gov/azru/learn/education/travellingtrunks.htm
-        // https://www.nps.gov/azru/learn/education/classrooms/fieldtrips.htm
+    })
+    .catch(error => {
+        console.log('Error', error);
+    });        
 
- 
+}
 
 
-            // Access lesson plans for the specified park
-            fetch(`https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}`)
-            .then(response => {
-            // console.log('Response:', response)
-            return response.json();
-            })
-            .then(result => {
-                console.log('Result:', result);
-                
-                const h3 = document.createElement('h3');
-                h3.innerHTML = 'Lesson Plans';
-                park_lessons.append(h3);
+const get_all_lessons = (park_code, full_park_name) => {
 
-                for (data in result.data) {
-                    const lesson_title = document.createElement('h5');
+    const api_key = NP_API_KEY.value;
+
+    // Send a GET request to the National Parks Service for all lesson plans.
+    fetch(`https://developer.nps.gov/api/v1/lessonplans?limit=1270&api_key=${api_key}`) // total number of lessons: 1270
+    .then(response => {
+        console.log('Response:', response)
+        return response.json();
+    })
+    .then(result => {
+        console.log('Result:', result)
+
+        // Display the following divs
+        document.getElementById('park-lessons').style.display = 'block';
+        document.getElementById('np-lessons').style.display = 'block';
+
+        // Hide the search-by-state and state-parks divs.
+        document.getElementById('search-by-state').style.display = 'none';
+        document.getElementById('state-parks').style.display = 'none';
+       
+        const np_lessons = document.getElementById('np-lessons');
+
+        const h3 = document.createElement('h3');
+        h3.innerHTML = `${full_park_name} Lesson Plans`;
+        np_lessons.append(h3);
+        const hr = document.createElement('hr');
+        np_lessons.append(hr);
+
+        const p = document.createElement('p');
+
+        for (data in result.data) {
+
+            for (park in result.data[data].parks) {
+
+            // console.log('All Lessons:', result.data[data].parks);
+            
+                if (park_code === result.data[data].parks[park] && result.data[data].parks.length > 0) {
+
+                    const lesson_div = document.createElement('div');
+                    lesson_div.setAttribute('class', 'lessons');
+                    const lesson_title = document.createElement('h3');
                     const lesson_link = document.createElement('a');
                     lesson_link.innerHTML = result.data[data].title;
                     lesson_link.setAttribute('href', result.data[data].url);
                     lesson_title.append(lesson_link);
-                    park_lessons.append(lesson_title);
+                    lesson_div.append(lesson_title);
 
-                }
-            })
-            .catch(error => {
-                console.log('Error', error);
-            });
+                    const common_core = document.createElement('ul');
+                    const common_core_li_1 = document.createElement('li');
+                    const common_core_li_2 = document.createElement('li');
+                    const common_core_li_3 = document.createElement('li');
+                    const common_core_li_4 = document.createElement('li');
+                    for (standard in result.data[data].commonCore) {                
+                        common_core_li_1.innerHTML = `State Standards: ${result.data[data].commonCore.stateStandards}`;
+                        common_core.append(common_core_li_1);             
+                        common_core_li_2.innerHTML = `ELA Standards: ${result.data[data].commonCore.elaStandards}`;      
+                        common_core.append(common_core_li_2);                
+                        common_core_li_3.innerHTML = `Math Standards: ${result.data[data].commonCore.mathStandards}`;
+                        common_core.append(common_core_li_3);             
+                        common_core_li_4.innerHTML = `Additional Standards: ${result.data[data].commonCore.additionalStandards}`;
+                        common_core.append(common_core_li_4);             
+                        lesson_div.append(common_core);
+                    }
+                    
+                    const duration = document.createElement('p');
+                    duration.innerHTML = `Lesson Duration: ${result.data[data].duration}`;
+                    lesson_div.append(duration);
 
+                    const grade_level = document.createElement('p');
+                    grade_level.innerHTML = `Grade Level: ${result.data[data].gradeLevel}`;
+                    lesson_div.append(grade_level);
 
-        })
-        .catch(error => {
-            console.log('Error', error);
-        });
+                    const lesson_objective = document.createElement('p');
+                    lesson_objective.innerHTML = `Objective: ${result.data[data].questionObjective}`;
+                    lesson_div.append(lesson_objective);
 
-        
-        
+                    const lesson_subject = document.createElement('ul');
+                    for (subject in result.data[data].subject) {
+                        const lesson_subject_li = document.createElement('li');
+                        lesson_subject_li.innerHTML = `Subject: ${result.data[data].subject[subject]}`;
+                        lesson_subject.append(lesson_subject_li);
+                        lesson_div.append(lesson_subject);
+                    }
+                                
+                    np_lessons.append(lesson_div);
 
+                } else {
+
+                    p.innerHTML = 'There are no lessons available at this time.';
+                    np_lessons.append(p);                        
+                
+                }                    
+                
+            }   
+        }
+
+    });
 }
