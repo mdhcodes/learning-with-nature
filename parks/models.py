@@ -13,7 +13,7 @@ class User(AbstractUser):
 class Lesson(models.Model):
     url = models.URLField()
     title = models.TextField()
-    parks = models.JSONField() # The parkCode is stored in the parks list.
+    parks = models.JSONField() # The parkCode is stored in the parks list. Link to these parks in the lesson plan. https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}
     questionObjective = models.TextField()
     gradeLevel = models.TextField()
     commonCore = models.JSONField()
@@ -26,5 +26,21 @@ class Lesson(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educator')
     date = models.DateTimeField(auto_now=False,  auto_now_add=True)
 
-    def __str__(self):
-        return f'{self.title} / {self.user}'
+    # Return data as a JSON object.
+    def serialize(self):
+        return {
+            "id": self.id,
+            "url": self.url,
+            "title": self.title,
+            "parks": self.parks,
+            "questionObjective": self.questionObjective,
+            "gradeLevel": self.gradeLevel,
+            "commonCore": self.commonCore,
+            "subject": self.subject,
+            "duration": self.duration,
+            "notes": self.notes,
+            "image": self.image,
+            "doc_upload": self.doc_upload,
+            "user": self.user,
+            "date": self.date.strftime("%b %d %Y, %I:%M %p"),
+        }

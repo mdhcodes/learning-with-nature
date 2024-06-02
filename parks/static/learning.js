@@ -264,7 +264,7 @@ const get_all_lessons = (park_code, full_park_name) => {
                     lesson_link.setAttribute('href', result.data[data].url);
                     lesson_title.append(lesson_link);
                     lesson_div.append(lesson_title);
-
+                    
                     const common_core = document.createElement('ul');
                     const common_core_li_1 = document.createElement('li');
                     const common_core_li_2 = document.createElement('li');
@@ -301,12 +301,87 @@ const get_all_lessons = (park_code, full_park_name) => {
                         lesson_subject.append(lesson_subject_li);
                         lesson_div.append(lesson_subject);
                     }
+
+                    const lesson_id = document.createElement('p');
+                    lesson_id.innerHTML = `Lesson ID: ${result.data[data].id}`;
+                    lesson_div.append(lesson_id);
+
+                    const id = result.data[data].id;
+                    
+                    const save = document.createElement('button');
+                    save.innerHTML = 'Save';
+                    save.setAttribute('class', 'save');
+                    save.setAttribute('data-lessonid', id);
+                    lesson_div.append(save);
                                 
                     np_lessons.append(lesson_div);
 
+                    const save_lesson = document.querySelectorAll('.save');
+                    save_lesson.forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+
+                            console.log('Saving Park Code:', park_code);
+                            // Connect save button with the specific lesson the user wants to save using the parkCode and lessonId.
+                            // Fetch the lesson data and store it in variables to pass to the database.
+                            fetch(`https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}`)
+                            .then(response => {
+                                return response.json();
+                            })
+                            .then(result => {
+                                // console.log('Result:', result);
+
+                                lessons = result.data;
+                                // console.log(result.data);
+                                // From the array of lesson returned for the parkCode, identify the specific lesson with the lessonId.
+                                lessons.forEach((lesson) => {
+
+                                    // console.log('Choose Lesson to Save:', lesson);
+                                    const lesson_id = btn.dataset.lessonid;
+                                    // console.log('LessonID:', lesson_id);
+                                    // console.log('LessonID from endpoint:', lesson.id);
+                                    if (lesson_id === lesson.id) {
+                                        console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
+                                        // Store lesson data in the following variables.
+                                        const id = lesson.id;
+                                        // console.log('ID:', id);
+                                        const url = lesson.url;
+                                        // console.log('URL:', url);
+                                        const title = lesson.title;
+                                        // console.log('Title:', title);
+                                        const parks = lesson.parks;
+                                        // console.log('Parks:', parks);
+                                        const questionObjective = lesson.questionObjective;
+                                        // console.log('Question Objective:', questionObjective);
+                                        const gradeLevel = lesson.gradeLevel;
+                                        // console.log('Grade Level:', gradeLevel);
+                                        const commonCore = lesson.commonCore;
+                                        // console.log('Common Core:', commonCore);
+                                        const subject = lesson.subject;
+                                        // console.log('Subject:', subject);
+                                        const duration = lesson.duration;
+                                        // console.log('Duration:', duration);
+                                        // const notes = lesson.notes;
+                                        // console.log('Notes:', notes);
+                                        // const image = lesson.image;
+                                        // console.log('Image:', image);
+                                        // const doc_upload = lesson.doc_upload;
+                                        // console.log('Doc Upload:', doc_upload);
+                                        const user = lesson.user;
+                                        // console.log('User:', user);
+                                    }
+
+                                });
+
+                            });
+                        });
+
+                    });
+                    
+
                 } else {
 
-                    p.innerHTML = 'There are no lessons available at this time.';
+                    p.innerHTML = 'There are no lessons or no more lessons available for this park at this time.';
                     np_lessons.append(p);                        
                 
                 }                    
