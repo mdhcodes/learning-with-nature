@@ -12,8 +12,39 @@
         {% endblock script %}
     </head>
     <body>
-        <h1><a href="{% url 'index' %}">Learning With National Parks</a></h1>
-        {% block body %}
-        {% endblock body %}
+
+        <nav class="nav-bgc navbar navbar-expand-lg fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'index' %}"><strong>Learning With National Parks</strong></a>            
+                <div>
+                    <ul class="navbar-nav mr-auto">
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            {% comment %} Clicking on a logo should load the index route. {% endcomment %}
+                            <a class="nav-link" href="#">Hello, {{ user.username }}</a>
+                        </li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="container park-data">
+            {% comment %} <h1><a href="{% url 'index' %}">Learning With National Parks</a></h1>    {% endcomment %}
+            {% block body %}
+            {% endblock body %}
+        </div>
     </body>
 </html>

@@ -1,3 +1,19 @@
+html, 
+body {
+    background-color: #D9EAD3 !important;
+}
+
+.nav-bgc,
+.nav-bgc a,
+.nav-bgc ul {
+    background-color: #123524 !important;
+    color: #D9EAD3 !important;
+}
+
+.park-data {
+    margin-top: 5em;
+}
+
 .parks,
 .lessons {
     border-bottom: thin solid gray;
