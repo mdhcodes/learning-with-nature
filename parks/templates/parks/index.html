@@ -6,6 +6,15 @@
 
 {% block body %}
     <input id="NP_API_KEY" value="{% get_env_var 'NP_API_KEY' %}" type="hidden" />
+    <input id="current-user" value="{{ user }}" type="hidden" />
+
+    {% if message %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+    {% endif %}
+
+    <div id="login-message"></div>
+
+    <p>{{ task }}</p>
 
     {% comment %} Dropdown to find a park by State OR by Topic {% endcomment %}
     

@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 
-from .models import User
+from .models import User, Lesson
 
 from learning.settings import NP_API_KEY
 
@@ -16,11 +16,11 @@ from learning.settings import NP_API_KEY
 
 def index(request):
 
-    context = {
-        'message': 'Let\'s explore national parks!'
-    }
+    # context = {
+    #     'task': 'Let\'s explore national parks!'
+    # }
     
-    return render(request, 'parks/index.html', context)
+    return render(request, 'parks/index.html') #, context)
 
 
 # https://docs.djangoproject.com/en/5.0/topics/auth/default/#how-to-log-a-user-in
@@ -101,28 +101,68 @@ def register(request):
         return render(request, 'parks/register.html')
 
 
-def parks(request):
+# def parks(request):
 
-    if request.POST:
+#     if request.POST:
 
-        print('Request', request)
+#         print('Request', request)
 
-        state = request.POST['state']
+#         state = request.POST['state']
 
-        print('State Name:', request.POST['state'])
+#         print('State Name:', request.POST['state'])
 
-        # https://reintech.io/blog/connecting-to-external-api-in-django
-        url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
-        response = requests.get(url)
-        park_data = response.json() # Dictionary
+#         # https://reintech.io/blog/connecting-to-external-api-in-django
+#         url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
+#         response = requests.get(url)
+#         park_data = response.json() # Dictionary
 
-        return JsonResponse(park_data)
+#         return JsonResponse(park_data)
     
-    else:
-        return render(request, 'parks/index.html', { 'message': 'Let\'s explore national parks!' })
-        
+#     else:
+#         return render(request, 'parks/index.html', { 'message': 'Let\'s explore national parks!' })
+       
 
     
-# @login_required
-# def save_lesson():
-    # pass
+@login_required
+def save_park_lesson(request):
+
+    if request.method == 'POST':
+
+        username = request.user
+        # print('Username:', username)
+        # Check for user in the database. Ensure the user captured by client side javascript is registered in the database.
+        park_user = User.objects.get(username=username)
+        # print('User in database:', park_user)
+
+        if username == park_user:
+            # Get data/lesson components from JS POST request.
+            data = json.loads(request.body)
+            # print('Data:', data) # Python dictionary - access values using [] or get() method.
+
+            url = data['url']
+            # url = data.get('url')
+            title = data.get('title')
+            parks = data.get('parks')
+            questionObjective = data.get('questionObjective')
+            gradeLevel = data.get('gradeLevel')
+            commonCore = data.get('commonCore')
+            subject = data.get('subject')
+            duration = data.get('duration')
+            user = park_user
+
+            lesson = Lesson(
+                url=url,
+                title=title,
+                parks=parks,
+                questionObjective=questionObjective,
+                gradeLevel=gradeLevel,
+                commonCore=commonCore,
+                subject=subject,
+                duration=duration,
+                user=user
+            )
+            lesson.save()
+
+        return JsonResponse({'message': 'Lesson saved successfully.'})
+    
+    return JsonResponse({'error': 'POST request required.'})
