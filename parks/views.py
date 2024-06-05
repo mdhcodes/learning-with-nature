@@ -14,13 +14,8 @@ from learning.settings import NP_API_KEY
 
 # Create your views here.
 
-def index(request):
-
-    # context = {
-    #     'task': 'Let\'s explore national parks!'
-    # }
-    
-    return render(request, 'parks/index.html') #, context)
+def index(request):    
+    return render(request, 'parks/index.html')
 
 
 # https://docs.djangoproject.com/en/5.0/topics/auth/default/#how-to-log-a-user-in
@@ -101,28 +96,6 @@ def register(request):
         return render(request, 'parks/register.html')
 
 
-# def parks(request):
-
-#     if request.POST:
-
-#         print('Request', request)
-
-#         state = request.POST['state']
-
-#         print('State Name:', request.POST['state'])
-
-#         # https://reintech.io/blog/connecting-to-external-api-in-django
-#         url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
-#         response = requests.get(url)
-#         park_data = response.json() # Dictionary
-
-#         return JsonResponse(park_data)
-    
-#     else:
-#         return render(request, 'parks/index.html', { 'message': 'Let\'s explore national parks!' })
-       
-
-    
 @login_required
 def save_park_lesson(request):
 
@@ -166,3 +139,26 @@ def save_park_lesson(request):
         return JsonResponse({'message': 'Lesson saved successfully.'})
     
     return JsonResponse({'error': 'POST request required.'})
+
+
+def saved(request):
+
+        print('Request', request)
+
+        # current_username = request.user
+        current_user_id = request.user.id
+
+        # Get all saved lessons for the specified user.
+        lessons = Lesson.objects.filter(user_id=current_user_id) # Returns QuerySet of populated Django models - python objects that contain fields and functions.     
+        # lessons = Lesson.objects.filter(user_id=current_user_id).values() # Returns QuerySet of dictionaries for each row in the database. (Performance is very efficient) These dictionaries can then be placed in a list [] or calling the list() constructor - dict object has no attribute serialize
+        print('Lessons:', lessons)
+
+        if lessons == None:
+            return JsonResponse({'message': 'There are no saved lessons.'})
+        else:
+
+            # TypeError at /saved - In order to allow non-dict objects to be serialized set the safe parameter to False.
+            # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
+            
+            # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
+            return JsonResponse([lesson.serialize() for lesson in lessons], safe=False)

@@ -9,6 +9,8 @@ urlpatterns = [
     path("login", views.login_user, name="login"),
     path("logout", views.logout_user, name="logout"),
     path("register", views.register, name="register"),
-    # path('parks', views.parks, name='parks'),
     path('save_park_lesson', views.save_park_lesson, name='save_park_lesson'),
+    path('saved', views.saved, name='saved'), # When 'Saved Lessons' button is clicked, the program goes to the /saved route and displays the JSON in the browswer which is not the desired outcome. 
+    # path('parks', views.save_park_lesson, name='save_park_lesson'),
+    # path('parks', views.saved, name='saved'),
 ]

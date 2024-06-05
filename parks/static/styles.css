@@ -1,20 +1,57 @@
 html, 
 body {
-    background-color: #D9EAD3 !important;
+    /* background-color: #D9EAD3 !important; */
+    background-color: #ADC9B3 !important;
 }
 
 .nav-bgc,
 .nav-bgc a,
 .nav-bgc ul {
     background-color: #123524 !important;
-    color: #D9EAD3 !important;
+    color: #D9EAD3 !important; 
+    /* color: #fff !important; */
 }
+
+.find-park {
+    border: thin solid #537765;
+    border-radius: 5px;
+    padding: .5em;
+    color: #D9EAD3;
+    background-color: #537765;
+}
+
+.find-park:hover {
+    color: #fff;
+    background-color: #123524;
+}
+
 
 .park-data {
     margin-top: 5em;
 }
 
+#select-state {
+    margin-top: 2em;
+}
+
+#state-parks,
+#park-lessons,
+#np-lessons,
+#saved-lessons {
+    margin-top: 3em;;
+}
+
+
 .parks,
 .lessons {
     border-bottom: thin solid gray;
+}
+
+#saved {
+    color: #D9EAD3;
+}
+
+.lesson-title {
+    font-weight: bold;
+    font-size: 1.1em;
 }

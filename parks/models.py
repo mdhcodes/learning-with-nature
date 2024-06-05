@@ -2,6 +2,7 @@
 # If you’re starting a new project, it’s highly recommended to set up a custom user model, even if the default User model is sufficient for you. This model behaves identically to the default user model, but you’ll be able to customize it in the future if the need arises.
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import json
 
 # Create your models here.
 
@@ -27,6 +28,10 @@ class Lesson(models.Model):
     date = models.DateTimeField(auto_now=False,  auto_now_add=True)
 
     # Return data as a JSON object.
+    # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
+    # Error - TypeError at /saved Object of type ImageFieldFile/FileFieldFile/User is not JSON serializable django
+    # https://stackoverflow.com/questions/7497138/how-do-i-serialize-an-imagefield-in-django
+    # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable ?
     def serialize(self):
         return {
             "id": self.id,
@@ -39,8 +44,8 @@ class Lesson(models.Model):
             "subject": self.subject,
             "duration": self.duration,
             "notes": self.notes,
-            "image": self.image,
-            "doc_upload": self.doc_upload,
-            "user": self.user,
+            "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
+            "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
+            "user": json.dumps(str(self.user)), 
             "date": self.date.strftime("%b %d %Y, %I:%M %p"),
         }

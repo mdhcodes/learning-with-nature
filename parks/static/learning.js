@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', function() {
         get_parks(state);
     });
 
+    const saved = document.querySelector('#saved');
+    if (saved !== null) {
+        saved.addEventListener('click', () => {
+            get_saved_lessons();
+        });
+    }       
+
 });
 
 
@@ -315,137 +322,6 @@ const get_all_lessons = (park_code, full_park_name) => {
                     lesson_div.append(save);
                                 
                     np_lessons.append(lesson_div);
-                    
-                    /*
-                    const save_lesson = document.querySelectorAll('.save');
-                    save_lesson.forEach((btn) => {
-                        btn.addEventListener('click', (e) => {
-                            e.preventDefault();                   
-
-                            console.log('Saving Park Code:', park_code);
-                            // Connect save button with the specific lesson the user wants to save using the parkCode and lessonId.
-                            // Fetch the lesson data and store it in variables to pass to the database.
-                            fetch(`https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}`)
-                            .then(response => {
-                                return response.json();
-                            })
-                            .then(result => {
-                                // console.log('Result:', result);
-
-                                lessons = result.data;
-                                // console.log(result.data);
-                                // From the array of lesson returned for the parkCode, identify the specific lesson with the lessonId.
-                                lessons.forEach((lesson) => {
-
-                                    // console.log('Choose Lesson to Save:', lesson);
-                                    const lesson_id = btn.dataset.lessonid;
-                                    // console.log('LessonID:', lesson_id);
-                                    // console.log('LessonID from endpoint:', lesson.id);
-                                    if (lesson_id === lesson.id) {
-                                        console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
-                                        // Store lesson data in the following variables.
-                                        const id = lesson.id;
-                                        // console.log('ID:', id);
-                                        const url = lesson.url;
-                                        // console.log('URL:', url);
-                                        const title = lesson.title;
-                                        // console.log('Title:', title);
-                                        const parks = lesson.parks;
-                                        // console.log('Parks:', parks);
-                                        const questionObjective = lesson.questionObjective;
-                                        // console.log('Question Objective:', questionObjective);
-                                        const gradeLevel = lesson.gradeLevel;
-                                        // console.log('Grade Level:', gradeLevel);
-                                        const commonCore = lesson.commonCore;
-                                        // console.log('Common Core:', commonCore);
-                                        const subject = lesson.subject;
-                                        // console.log('Subject:', subject);
-                                        const duration = lesson.duration;
-                                        // console.log('Duration:', duration);
-                                        // const notes = lesson.notes;
-                                        // console.log('Notes:', notes);
-                                        // const image = lesson.image;
-                                        // console.log('Image:', image);
-                                        // const doc_upload = lesson.doc_upload;
-                                        // console.log('Doc Upload:', doc_upload);
-                                        // const user = lesson.user;
-                                        // console.log('User:', user);
-
-                                        // Fetch error in python - Forbidden (CSRF token missing.): /save_park_lesson
-                                        // To fetch from JS you must include the CSRF token.
-                                        // https://stackoverflow.com/questions/6506897/csrf-token-missing-or-incorrect-while-post-parameter-via-ajax-in-django
-                                        // https://docs.djangoproject.com/en/5.0/howto/csrf/
-
-                                        function getCookie(name) {
-                                            let cookieValue = null;
-                                            if (document.cookie && document.cookie !== '') {
-                                                const cookies = document.cookie.split(';');
-                                                for (let i = 0; i < cookies.length; i++) {
-                                                    const cookie = cookies[i].trim();
-                                                    // Does this cookie string begin with the name we want?
-                                                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            return cookieValue;
-                                        }
-
-                                        const current_user = document.getElementById('current-user').value;
-                                        // console.log('Current User:', current_user);
-
-                                        if (current_user === 'AnonymousUser') {
-                                            // If user is not authenticated, send a message to sign in.
-                                            // Create alert with message()
-                                            // console.log('Please sign in to save a lesson');
-                                            // <div class="alert alert-warning" role="alert">'Please sign in to save a lesson'</div>
-                                            const login_message = document.getElementById('login-message');
-                                            login_message.innerHTML = 'Please sign in to save a lesson';
-                                            login_message.setAttribute('class', 'alert alert-warning');
-                                            login_message.setAttribute('role', 'alert');
-
-                                            // Go to the top of the page automatically.
-                                            // https://stackoverflow.com/questions/4210798/how-to-scroll-to-top-of-page-with-javascript-jquery
-                                            document.body.scrollTop = document.documentElement.scrollTop = 0;
-
-                                        } else {
-            
-                                            // Send a POST request to the /save_park_lesson route with the valued captured above.
-                                            fetch('save_park_lesson', {
-                                                method: 'POST',
-                                                headers: {'X-CSRFToken': getCookie('csrftoken')},
-                                                body: JSON.stringify({
-                                                    id: id,
-                                                    url: url,
-                                                    title: title,
-                                                    parks: parks,
-                                                    questionObjective: questionObjective,
-                                                    gradeLevel: gradeLevel,
-                                                    commonCore: commonCore,
-                                                    subject: subject,
-                                                    duration: duration
-                                                })
-                                            })
-                                            .then(response => response.json())
-                                            .then(result => {
-                                                console.log('Result:', result);
-                                                // Once the data has been send, send a message to the user.
-                                            })
-                                            .catch((error) => {
-                                                console.log('Error:', error);
-                                            });
-                                        }
-
-                                    }
-
-                                });
-
-                            });
-                        });
-
-                    });
-                    */
 
                 } else {
 
@@ -592,7 +468,16 @@ const save_a_lesson = (park_code, lesson_id) => {
                     .then(response => response.json())
                     .then(result => {
                         console.log('Result:', result);
-                        // Once the data has been send, send a message to the user.
+                        // Once the data has been saved, send a message to the user.
+                        const saved_message = document.getElementById('saved-message');
+                        saved_message.innerHTML = 'Please sign in to save a lesson';
+                        saved_message.setAttribute('class', 'alert alert-success');
+                        saved_message.setAttribute('role', 'alert');
+                        saved_message.innerHTML = 'Lesson saved successfully';
+                        // Go to the top of the page automatically.
+                        document.body.scrollTop = document.documentElement.scrollTop = 0;
+                        // Show to saved lessons
+
                     })
                     .catch((error) => {
                         console.log('Error:', error);
@@ -605,4 +490,93 @@ const save_a_lesson = (park_code, lesson_id) => {
 
     });
     
+}
+
+
+const get_saved_lessons = () => {
+    // Make a GET request to /saved route to request all specified user's saved lessons.
+    fetch('saved')
+    .then(response => response.json())
+    .then(result => {
+        console.log('Result:', result)
+
+        // Display results for the user in the saved-lessons div.
+        const saved_lessons = document.getElementById('saved-lessons');
+        saved_lessons.style.display = 'block';
+
+        // Hide all other divs
+        document.getElementById('search-by-state').style.display = 'none';
+        document.getElementById('state-parks').style.display = 'none';
+        document.getElementById('park-lessons').style.display = 'none';
+        document.getElementById('np-lessons').style.display = 'none';
+
+        const saved_heading = document.createElement('h2');
+        saved_heading.innerHTML = `Saved Lessons`;
+        saved_lessons.append(saved_heading);
+        const hr = document.createElement('hr');
+        saved_lessons.append(hr);
+
+        for (lesson in result) {
+            // console.log('Lesson:', result[lesson]);
+            
+            const lesson_id = result[lesson].id;
+            // console.log('Lesson ID:', lesson_id);
+
+            const lesson_div = document.createElement('div');
+            lesson_div.setAttribute('class', 'lessons');
+            const lesson_title = document.createElement('p');
+            lesson_title.setAttribute('class', 'lesson-title');
+            lesson_title_link = document.createElement('a');
+            lesson_title_link.innerHTML = result[lesson].title;
+            lesson_title_link.setAttribute('href', '#'); 
+            lesson_title_link.addEventListener('click', get_lesson.bind(null, lesson_id));
+            lesson_title.append(lesson_title_link);
+            lesson_div.append(lesson_title);
+            const lesson_question = document.createElement('p');
+            lesson_question.innerHTML = result[lesson].questionObjective;
+            lesson_div.append(lesson_question);
+            const edit_button = document.createElement('button');            
+            edit_button.innerHTML = 'Edit';
+            edit_button.setAttribute('class', 'edit');
+            // edit_button.setAttribute('data-lessonid', lesson_id);
+            lesson_div.append(edit_button);
+
+            saved_lessons.append(lesson_div);
+            
+            lesson_div.append(lesson);
+
+            edit_button.addEventListener('click', edit_a_lesson.bind(null, lesson_id));
+        }
+    });
+}
+
+
+const edit_a_lesson = (lesson_id) => {
+
+    console.log('Lesson ID to Edit:', lesson_id);
+
+    /*
+        "id": self.id,
+            "url": self.url,
+            "title": self.title,
+            "parks": self.parks,
+            "questionObjective": self.questionObjective,
+            "gradeLevel": self.gradeLevel,
+            "commonCore": self.commonCore,
+            "subject": self.subject,
+            "duration": self.duration,
+            "notes": self.notes,
+            "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
+            "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
+            "user": json.dumps(str(self.user)), 
+            "date": self.date.strftime("%b %d %Y, %I:%M %p")
+*/
+}
+
+
+// Get a specific lesson
+const get_lesson = (lesson_id) => {
+
+    console.log('Get Lesson ID:', lesson_id);
+
 }

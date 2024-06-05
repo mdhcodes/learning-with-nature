@@ -15,19 +15,23 @@
 
         <nav class="nav-bgc navbar navbar-expand-lg fixed-top">
             <div class="container">
+                {% comment %} Clicking on the logo should load the index route. {% endcomment %}
                 <a class="navbar-brand" href="{% url 'index' %}"><strong>Learning With National Parks</strong></a>            
                 <div>
                     <ul class="navbar-nav mr-auto">
                         {% if user.is_authenticated %}
                         <li class="nav-item">
-                            {% comment %} Clicking on a logo should load the index route. {% endcomment %}
+                            
+                            {% comment %} Clicking on the username should load the user's profile information. {% endcomment %}
                             <a class="nav-link" href="#">Hello, {{ user.username }}</a>
                         </li>
-                        {% endif %}
-                        {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                            </li>
+                        <li class="nav-item">
+                            <!-- <a id="saved" class="nav-link" href="{% url 'saved' %}">Saved Lessons</a> --><!-- Sends json data to the browser via href path /saved -->
+                            <button id="saved" class="nav-link">Saved Lessons</button><!-- Sends data to the console -->
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                        </li>
                         {% else %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'login' %}">Log In</a>

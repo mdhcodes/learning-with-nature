@@ -13,14 +13,15 @@
     {% endif %}
 
     <div id="login-message"></div>
+    <div id="saved-message"></div>
 
     <p>{{ task }}</p>
 
     {% comment %} Dropdown to find a park by State OR by Topic {% endcomment %}
+
+    <a class="find-park navbar-brand" href="{% url 'index' %}">Find Parks by State</a>
     
     <div id="search-by-state" class="container mb-3">
-
-        <p>Find Parks by State:</p>
 
         <!-- https://gist.github.com/RichLogan/9903043 -->
         <!-- Select the option/state and the event is triggered. -->
@@ -88,6 +89,9 @@
     </div>
 
     <div id="np-lessons">        
+    </div>
+
+    <div id="saved-lessons">        
     </div>
 
 {% endblock body %}
