@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saved-lessons').style.display = 'none';
     document.getElementById('edit-lesson').style.display = 'none';
     
-    const select = document.querySelector('select');
+    const select_state = document.querySelector('#select-state');
 
-    select.addEventListener('change', () => {
-        const state = select.value;
+    select_state.addEventListener('change', () => {
+        const state = select_state.value;
         // console.log('State:', state)
 
         get_parks(state);
@@ -100,14 +100,12 @@ const full_state_names = {
 
 const get_parks = (state) => {
     // console.log(state);
-    // console.log(NP_API_KEY.value);
-    const api_key = NP_API_KEY.value;
 
     const state_name = full_state_names[state];
-    console.log('State Name', state_name)
+    console.log('State Name:', state_name)
 
     // Send a GET request to the National Parks Service with the state value captured above.
-    fetch(`https://developer.nps.gov/api/v1/parks?stateCode=${state}&api_key=${api_key}`)
+    fetch(`parks/${state}`)
     .then(response => {
         // console.log('Response:', response)
         return response.json();
@@ -128,7 +126,7 @@ const get_parks = (state) => {
         const hr = document.createElement('hr');
         section.append(hr);
 
-        console.log('Data:', result.data)
+        console.log('Park Data:', result.data)
 
         for (data in result.data) {                                         
             const div = document.createElement('div'); 
@@ -144,7 +142,7 @@ const get_parks = (state) => {
             const full_park_name = result.data[data].fullName;
             // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind
             // bind() will pass the variable park_code without invoking the get_park function.
-            park_link.addEventListener('click', get_park_links.bind(null, park_code, full_park_name)); // get_park(park_code) immediately invokes the get_park function.
+            park_link.addEventListener('click', park_learning_links.bind(null, park_code, full_park_name)); // park_learning_links(park_code, full_park_name) immediately invokes the park_learning_links function.
             park_name.append(park_link);         
             div.append(park_name);
             park_city = document.createElement('p');
@@ -172,25 +170,23 @@ const get_parks = (state) => {
     .catch(error => {
         console.log('Error:', error)
     });
-
 }
 
 
-const get_park_links = (park_code, full_park_name) => {
+const park_learning_links = (park_code, full_park_name) => {
     console.log('Park Code:', park_code);
     console.log('Full Park Name:', full_park_name);
-
-    const api_key = NP_API_KEY.value;
-
     
     // Send a GET request to the National Parks Service with the park_code value.
-    fetch(`https://developer.nps.gov/api/v1/parks?parkCode=${park_code}&api_key=${api_key}`)
+    fetch(`park_learning/${park_code}`)
     .then(response => {
         // console.log('Response:', response)
         return response.json();
     })
     .then(result => {
-        console.log('Result:', result)        
+        // console.log('Result:', result)  
+        
+        console.log('Park Learning Data:', result.data)  // Limit: 50
 
         // Hide the state-parks div.
         document.getElementById('state-parks').style.display = 'none';
@@ -247,16 +243,14 @@ const get_park_links = (park_code, full_park_name) => {
 
 const get_park_lessons = (park_code, full_park_name) => {
 
-    const api_key = NP_API_KEY.value;
-
     // Send a GET request to the National Parks Service for all lesson plans.
-    fetch(`https://developer.nps.gov/api/v1/lessonplans?limit=1270&api_key=${api_key}`) // total number of lessons: 1270
+    fetch('all_park_lessons')
     .then(response => {
-        console.log('Response:', response)
+        // console.log('Response:', response)
         return response.json();
     })
     .then(result => {
-        console.log('Result:', result)
+        // console.log('Result:', result)
 
         // Display the following divs
         document.getElementById('park-learning').style.display = 'block';
@@ -272,11 +266,14 @@ const get_park_lessons = (park_code, full_park_name) => {
 
         const p = document.createElement('p');
 
-        for (data in result.data) {
+        console.log('Park Lessons Data:', result.data) // Limit: 1270 
+
+        for (data in result.data) {                    
 
             for (park in result.data[data].parks) {
+                // console.log('Park Lessons Data:', result.data[data])    
 
-            // console.log('All Lessons:', result.data[data].parks);
+            // console.log('All Lessons:', result.data[data].parks);            
             
                 if (park_code === result.data[data].parks[park] && result.data[data].parks.length > 0) {
 
@@ -367,14 +364,13 @@ const get_park_lessons = (park_code, full_park_name) => {
 }
 
 
-const save_a_lesson = (park_code, lesson_id) => {
-
-    const api_key = NP_API_KEY.value;           
+const save_a_lesson = (park_code, lesson_id) => {  
 
     console.log('Saving Park Code:', park_code);
+    console.log('Saving Lesson ID:', lesson_id);
     // Connect save button with the specific lesson the user wants to save using the parkCode and lessonId.
-    // Fetch the lesson data and store it in variables to pass to the database.
-    fetch(`https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}`)
+    // Fetch the lesson data and store it in variables to pass to the database.   
+    fetch(`park_lessons/${park_code}`) // /${lesson_id}`)
     .then(response => {
         return response.json();
     })
@@ -382,21 +378,23 @@ const save_a_lesson = (park_code, lesson_id) => {
         // console.log('Result:', result);
 
         lessons = result.data;
-        // console.log(result.data);
+
+        
         // From the array of lesson returned for the parkCode, identify the specific lesson with the lessonId.
         lessons.forEach((lesson) => {
-
-            // console.log('Choose Lesson to Save:', lesson);            
+            
+            // console.log('Find Park Lesson to Save:', lesson);           
             
             // Get this button when the event listener is triggered and pass it to this function 
-            console.log('LessonID:', lesson_id);       
-            // console.log('LessonID from endpoint:', lesson.id);
+            // console.log('Lesson_ID:', lesson_id);       
+            // console.log('Lesson.ID from endpoint:', lesson.id);
 
             if (lesson_id === lesson.id) {
                 console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
+                console.log('Lesson_ID:', lesson_id);
                 // Store lesson data in the following variables.
                 const id = lesson.id;
-                // console.log('ID:', id);
+                console.log('Lesson.ID:', id);
                 const url = lesson.url;
                 // console.log('URL:', url);
                 const title = lesson.title;
@@ -500,13 +498,16 @@ const save_a_lesson = (park_code, lesson_id) => {
             }
 
         });
-
+        
     });
     
 }
 
 
 const get_saved_lessons = () => {
+    // Hide saved-message if there is one.
+    document.getElementById('saved-message').style.display = 'none';
+
     // Make a GET request to /saved route to request all specified user's saved lessons.
     fetch('saved')
     .then(response => response.json())

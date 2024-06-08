@@ -56,9 +56,6 @@ def edit(request, lesson_id):
         doc_upload = data['doc_upload']
         print('Doc Upload:', doc_upload)
 
-
-
-
         return JsonResponse({'message': 'Lesson updated successfully.'})
     
     else:
@@ -115,6 +112,61 @@ def login_user(request):
 def logout_user(request):
     logout(request)        
     return HttpResponseRedirect(reverse('index'))
+
+
+def parks(request, state):
+
+    print('Request:', request)
+    print('State:', state)
+
+    # https://reintech.io/blog/connecting-to-external-api-in-django
+    url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
+    response = requests.get(url)
+    park_data = response.json() # Dictionary
+
+    return JsonResponse(park_data) 
+
+
+def park_learning(request, park_code):
+
+    print('Request:', request)
+    print('Park Code:', park_code)
+    
+    url = f'https://developer.nps.gov/api/v1/parks?parkCode={park_code}&api_key={NP_API_KEY}'
+    response = requests.get(url)
+    park_link_data = response.json() # Dictionary
+    # print('Park Link Data:', park_link_data)
+
+    return JsonResponse(park_link_data)
+
+
+def all_park_lessons(request):
+
+    print('Request:', request)
+    
+    url = f'https://developer.nps.gov/api/v1/lessonplans?limit=1270&api_key={NP_API_KEY}' # total number of lessons: 1270
+    response = requests.get(url)
+    park_lessons = response.json() # Dictionary
+    # print('Park Lessons:', park_lessons)
+
+    return JsonResponse(park_lessons)
+
+
+def park_lessons(request, park_code): #, lesson_id): could have used lesson_id here but identified lesson in Javascript.
+
+    print('Request:', request)
+    print('Park Code for Lessons:', park_code)
+    # print('Park Lesson ID:', lesson_id)
+
+    url= f'https://developer.nps.gov/api/v1/lessonplans?parkCode={park_code}&api_key={NP_API_KEY}'
+    response = requests.get(url)
+    park_lesson_data = response.json() # Dictionary
+    # print('Park Lesson Data:', park_lesson_data)
+
+    # From the lessons returned for the park_code, identify the specific lesson to edit with the lesson_id.
+    # if (lesson_id in park_lesson_data) 
+
+    return JsonResponse(park_lesson_data)
 
 
 def register(request):
@@ -178,6 +230,8 @@ def save_park_lesson(request):
         # print('User in database:', park_user)
 
         if username == park_user:
+            # !!!!!!CHECK IF THIS LESSON IS ALREADY SAVED!!!!!!!
+
             # Get data/lesson components from JS POST request.
             data = json.loads(request.body)
             # print('Data:', data) # Python dictionary - access values using [] or get() method.
