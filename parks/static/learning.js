@@ -1,9 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Hide the state-parks, park-lessons, np-lessons, saved-lessons, and edit-lesson divs.
+    document.getElementById('state-parks').style.display = 'none';
+    document.getElementById('park-learning').style.display = 'none';
+    document.getElementById('np-lessons').style.display = 'none';
+    document.getElementById('saved-lessons').style.display = 'none';
+    document.getElementById('edit-lesson').style.display = 'none';
     
     const select = document.querySelector('select');
 
     select.addEventListener('change', () => {
-
         const state = select.value;
         // console.log('State:', state)
 
@@ -13,6 +19,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const saved = document.querySelector('#saved');
     if (saved !== null) {
         saved.addEventListener('click', () => {
+            // If a stored-lesson-data and the edit-form already exist and the user selects a new lesson to edit, the user should not see two lessons to edit.
+            // Check if edit_form has a CSS rule display:block. If so remove the element.
+            // https://stackoverflow.com/questions/4866229/check-element-css-display-with-javascript
+            const edit_lesson = document.querySelector('#edit-lesson');
+            console.log(edit_lesson);
+            
+            if (edit_lesson.style.display === 'block') {
+                // Removing a div clears the page and does not display new results.
+                // Hide all child nodes of edit-lesson (stored-lesson-data and edit-form)
+                // edit_lesson.style.display = 'none';
+                // Refresh the page
+                // this.location.reload();                
+                // get_saved_lessons();
+            } else {
+            // 
+            }
             get_saved_lessons();
         });
     }       
@@ -95,6 +117,8 @@ const get_parks = (state) => {
 
         // Hide park search-by-state div.
         document.getElementById('search-by-state').style.display = 'none';
+        // Display state-parks div.
+        document.getElementById('state-parks').style.display = 'block';
 
         const state_parks = document.getElementById('state-parks');
         const section = document.createElement('section'); 
@@ -120,7 +144,7 @@ const get_parks = (state) => {
             const full_park_name = result.data[data].fullName;
             // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind
             // bind() will pass the variable park_code without invoking the get_park function.
-            park_link.addEventListener('click', park_learning.bind(null, park_code, full_park_name)); // get_park(park_code) immediately invokes the get_park function.
+            park_link.addEventListener('click', get_park_links.bind(null, park_code, full_park_name)); // get_park(park_code) immediately invokes the get_park function.
             park_name.append(park_link);         
             div.append(park_name);
             park_city = document.createElement('p');
@@ -152,7 +176,7 @@ const get_parks = (state) => {
 }
 
 
-const park_learning = (park_code, full_park_name) => {
+const get_park_links = (park_code, full_park_name) => {
     console.log('Park Code:', park_code);
     console.log('Full Park Name:', full_park_name);
 
@@ -166,20 +190,17 @@ const park_learning = (park_code, full_park_name) => {
         return response.json();
     })
     .then(result => {
-        console.log('Result:', result)
-        const park_lessons = document.getElementById('park-lessons');
+        console.log('Result:', result)        
 
-        // Hide the search-by-state and state-parks divs.
-        document.getElementById('search-by-state').style.display = 'none';
+        // Hide the state-parks div.
         document.getElementById('state-parks').style.display = 'none';
-        document.getElementById('np-lessons').style.display = 'none';
-
-        // Display the state-park div
-        park_lessons.style.display = 'block';
+        // Display the park-lessons div.
+        const park_learning = document.getElementById('park-learning');     
+        park_learning.style.display = 'block';
 
         const park_name = document.createElement('h3');
         park_name.innerHTML = result.data[0].fullName;
-        park_lessons.append(park_name);
+        park_learning.append(park_name);
 
         // Learn About the Park: https://www.nps.gov/${parkCode}/learn/index.htm
         const learn = document.createElement('h4');
@@ -187,34 +208,34 @@ const park_learning = (park_code, full_park_name) => {
         learn_link.setAttribute('href', `https://www.nps.gov/${park_code}/learn/index.htm`);
         learn_link.innerHTML = 'Learn About the Park';
         learn.append(learn_link);
-        park_lessons.append(learn);
+        park_learning.append(learn);
 
         const k12_education = document.createElement('h4');
         k12_education.innerHTML = 'For Parents and K-12 Educators';
-        park_lessons.append(k12_education);
+        park_learning.append(k12_education);
 
         const teacher_guide = document.createElement('h4');
         const teacher_guide_link = document.createElement('a');
         teacher_guide_link.setAttribute('href', `https://www.nps.gov/${park_code}/learn/education/teachersguide.htm`);
         teacher_guide_link.innerHTML = 'Teacher\s Guide';
         teacher_guide.append(teacher_guide_link);
-        park_lessons.append(teacher_guide);
+        park_learning.append(teacher_guide);
 
         const trips = document.createElement('h4');
         const trips_link = document.createElement('a');
         trips_link.setAttribute('href', `https://www.nps.gov/${park_code}/learn/education/classrooms/fieldtrips.htm`);
         trips_link.innerHTML = 'Field Trips';
         trips.append(trips_link);
-        park_lessons.append(trips);
+        park_learning.append(trips);
 
         const trunks = document.createElement('h4');
         const trunks_link = document.createElement('a');
         trunks_link.setAttribute('href', `https://www.nps.gov/${park_code}/learn/education/travellingtrunks.htm`);
         trunks_link.innerHTML = 'Traveling Trunks';
         trunks.append(trunks_link);
-        park_lessons.append(trunks);
+        park_learning.append(trunks);
 
-        get_all_lessons(park_code, full_park_name);
+        get_park_lessons(park_code, full_park_name);
 
     })
     .catch(error => {
@@ -224,7 +245,7 @@ const park_learning = (park_code, full_park_name) => {
 }
 
 
-const get_all_lessons = (park_code, full_park_name) => {
+const get_park_lessons = (park_code, full_park_name) => {
 
     const api_key = NP_API_KEY.value;
 
@@ -238,12 +259,8 @@ const get_all_lessons = (park_code, full_park_name) => {
         console.log('Result:', result)
 
         // Display the following divs
-        document.getElementById('park-lessons').style.display = 'block';
+        document.getElementById('park-learning').style.display = 'block';
         document.getElementById('np-lessons').style.display = 'block';
-
-        // Hide the search-by-state and state-parks divs.
-        document.getElementById('search-by-state').style.display = 'none';
-        document.getElementById('state-parks').style.display = 'none';
        
         const np_lessons = document.getElementById('np-lessons');
 
@@ -328,8 +345,7 @@ const get_all_lessons = (park_code, full_park_name) => {
                     p.innerHTML = 'There are no lessons or no more lessons available for this park at this time.';
                     np_lessons.append(p);                        
                 
-                }                    
-                
+                }  
             }   
         }
         
@@ -342,8 +358,7 @@ const get_all_lessons = (park_code, full_park_name) => {
 
                 const lesson_id = target.dataset.lessonid;
 
-                save_a_lesson(park_code, lesson_id);
-                
+                save_a_lesson(park_code, lesson_id);                
 
             })
         });        
@@ -371,14 +386,12 @@ const save_a_lesson = (park_code, lesson_id) => {
         // From the array of lesson returned for the parkCode, identify the specific lesson with the lessonId.
         lessons.forEach((lesson) => {
 
-            // console.log('Choose Lesson to Save:', lesson);
-            
+            // console.log('Choose Lesson to Save:', lesson);            
             
             // Get this button when the event listener is triggered and pass it to this function 
-            console.log('LessonID:', lesson_id);
-            
-
+            console.log('LessonID:', lesson_id);       
             // console.log('LessonID from endpoint:', lesson.id);
+
             if (lesson_id === lesson.id) {
                 console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
                 // Store lesson data in the following variables.
@@ -449,7 +462,7 @@ const save_a_lesson = (park_code, lesson_id) => {
 
                 } else {
 
-                    // Send a POST request to the /save_park_lesson route with the valued captured above.
+                    // Send a POST request to the /save_park_lesson route with the values captured above.
                     fetch('save_park_lesson', {
                         method: 'POST',
                         headers: {'X-CSRFToken': getCookie('csrftoken')},
@@ -507,8 +520,9 @@ const get_saved_lessons = () => {
         // Hide all other divs
         document.getElementById('search-by-state').style.display = 'none';
         document.getElementById('state-parks').style.display = 'none';
-        document.getElementById('park-lessons').style.display = 'none';
+        document.getElementById('park-learning').style.display = 'none';
         document.getElementById('np-lessons').style.display = 'none';
+        document.getElementById('edit-lesson').style.display = 'none';
 
         const saved_heading = document.createElement('h2');
         saved_heading.innerHTML = `Saved Lessons`;
@@ -533,27 +547,36 @@ const get_saved_lessons = () => {
             lesson_title.append(lesson_title_link);
             lesson_div.append(lesson_title);
             const lesson_question = document.createElement('p');
-            lesson_question.innerHTML = result[lesson].questionObjective;
+            lesson_question.innerHTML = `Lesson Objective: ${result[lesson].questionObjective}`;
             lesson_div.append(lesson_question);
             const edit_button = document.createElement('button');            
             edit_button.innerHTML = 'Edit';
             edit_button.setAttribute('class', 'edit');
-            // edit_button.setAttribute('data-lessonid', lesson_id);
             lesson_div.append(edit_button);
 
             saved_lessons.append(lesson_div);
-            
-            lesson_div.append(lesson);
 
-            edit_button.addEventListener('click', edit_a_lesson.bind(null, lesson_id));
+            edit_button.addEventListener('click', get_lesson.bind(null, lesson_id));
         }
     });
 }
 
-
+/*
 const edit_a_lesson = (lesson_id) => {
 
-    console.log('Lesson ID to Edit:', lesson_id);
+    console.log('Edit a Lesson Function:', lesson_id);
+
+    // Pass lesson_id to the edit form action attribute in index.html.
+    // const id = lesson_id;
+    
+    const edit_lesson = document.getElementById('edit-lesson');
+    edit_lesson.style.display = 'block';
+
+    // Hide saved-lessons divs
+    document.getElementById('saved-lessons').style.display = 'none';
+
+    // Display form with saved lesson for the user to edit.
+    edit_lesson(lesson_id);
 
     /*
         "id": self.id,
@@ -571,12 +594,174 @@ const edit_a_lesson = (lesson_id) => {
             "user": json.dumps(str(self.user)), 
             "date": self.date.strftime("%b %d %Y, %I:%M %p")
 */
-}
+//}
 
 
-// Get a specific lesson
+
 const get_lesson = (lesson_id) => {
+    console.log('Lesson ID:', lesson_id);
 
-    console.log('Get Lesson ID:', lesson_id);
+    // Make a GET request to /get_lesson_to_edit route to request the lesson specified by the user.
+    fetch(`get_lesson_to_edit/${lesson_id}`)
+    .then(response => response.json())
+    .then(result => {
+        console.log('Result:', result)
 
+        // Display results for the user in the stored-lesson-data div.
+        const stored_lesson_data = document.getElementById('stored-lesson-data');
+        stored_lesson_data.style.display = 'block';
+
+        // Hide all other divs
+        document.getElementById('saved-lessons').style.display = 'none';
+        // document.getElementById('state-parks').style.display = 'none';
+        // document.getElementById('park-learning').style.display = 'none';
+        // document.getElementById('np-lessons').style.display = 'none';
+        // document.getElementById('edit-lesson').style.display = 'none';
+       
+        const title = document.createElement('p');
+        title.innerHTML = `Title: ${result.title} : ${result.id}`;
+        stored_lesson_data.append(title);
+        const url = document.createElement('p');
+        url.innerHTML = `Link: ${result.url}`;
+        stored_lesson_data.append(url);
+        const objective = document.createElement('p');
+        objective.innerHTML = `Objective: ${result.objective}`;
+        stored_lesson_data.append(objective);
+        const grade = document.createElement('p');
+        grade.innerHTML = `Grade Level: ${result.grade}`;
+        stored_lesson_data.append(grade);
+        const standards = document.createElement('ul');
+        for (i in result.commonCore) {
+            const standards_li = document.createElement('li');
+            standards_li.innerHTML = `Standards: ${result.commonCore[i]}`;
+            standards.append(standards_li); 
+            stored_lesson_data.append(standards);           
+        }
+
+        const subject = document.createElement('ul');
+        for (i in result.subject) {
+            const subject_li = document.createElement('li');
+            subject_li.innerHTML = `Subject: ${result.subject[i]}`;
+            subject.append(subject_li); 
+            stored_lesson_data.append(subject);           
+        }
+
+        const duration = document.createElement('p');
+        duration.innerHTML = `Duration: ${result.duration}`;
+        stored_lesson_data.append(duration);  
+        
+        // Display form to edit lesson plan in the edit-lesson div.
+        const edit_lesson = document.getElementById('edit-lesson');
+        edit_lesson.style.display = 'block';
+
+        const edit_url = `/edit/${lesson_id}`;
+        const edit_form = document.querySelector('#edit-form');
+        edit_form.setAttribute('action', edit_url)
+
+        const notes_label = document.createElement('label');
+        notes_label.setAttribute('for', 'notes');
+        notes_label.setAttribute('class', 'form-label');
+        notes_label.innerHTML = 'Lesson Notes';
+        edit_form.append(notes_label);
+
+        const notes = document.createElement('textarea');
+        notes.setAttribute('id', 'notes');
+        notes.setAttribute('class', 'form-control');
+        notes.setAttribute('placeholder', 'Add Lesson Notes Here');
+        edit_form.append(notes);
+
+        const image_label = document.createElement('label');
+        image_label.setAttribute('for', 'image-upload');
+        image_label.setAttribute('class', 'form-label');
+        image_label.innerHTML = 'Upload an Image';
+        edit_form.append(image_label);
+
+        const image = document.createElement('input');
+        image.setAttribute('type', 'file');
+        image.setAttribute('id', 'image-upload');
+        image.setAttribute('name', 'image');
+        image.setAttribute('multiple', '');
+        image.setAttribute('accept', '.png,.jpeg,.jpg,.bmp');
+        edit_form.append(image);
+
+        const doc_file_label = document.createElement('label');
+        doc_file_label.setAttribute('for', 'doc-file');
+        doc_file_label.setAttribute('class', 'form-label');
+        doc_file_label.innerHTML = 'Upload a Document';
+        edit_form.append(doc_file_label);
+
+        const doc_file = document.createElement('input');
+        doc_file.setAttribute('type', 'file');
+        doc_file.setAttribute('id', 'doc-file');
+        doc_file.setAttribute('name', 'doc-file');
+        doc_file.setAttribute('multiple', '');
+        doc_file.setAttribute('accept', '.doc,.docx,.pdf');
+        edit_form.append(doc_file);
+
+        const save_button = document.createElement('button');
+        save_button.setAttribute('type', 'submit');
+        save_button.setAttribute('id', 'save-edit');
+        save_button.setAttribute('class', 'btn btn-success');
+        save_button.innerHTML = 'Save';
+        edit_form.append(save_button);             
+        
+        // Add event listener to Save button.
+        // save_button.addEventListener('click', edit_lesson.bind(null, lesson_id));
+
+        // document.getElementById('save-edit').addEventListener('click', (e) => {
+        //     e.preventDefault(); // Prevent form submission
+
+        //     // Store user input/edit form field values in the following variables.
+        //     const edit_notes = document.querySelector('#notes').value;
+        //     const edit_image = document.querySelector('#image-upload').value;
+        //     const edit_doc_file = document.querySelector('#doc-file').value;
+            
+        //     edit_lesson(lesson_id, edit_notes, edit_image, edit_doc_file);
+        // });
+        
+    });
+
+    /*
+    // Add event listener to Save button.
+    const save_edit = document.querySelector('#save-edit');
+    if (save_edit !== null) {
+        save_edit.addEventListener('click', edit_lesson.bind(null, lesson_id));      
+    }
+    */
 }
+
+/*
+// Edit a specific lesson
+const edit_lesson = (lesson_id) => {
+
+    // Store user input/edit form field values in the following variables.
+    const edit_notes = document.querySelector('#notes').value;
+    const edit_image = document.querySelector('#image-upload').value;
+    const edit_doc_file = document.querySelector('#doc-file').value;
+
+    console.log('Edit ID saved:', lesson_id);
+    console.log('Edit Notes Saved:', edit_notes);
+    console.log('Edit Image Saved:', edit_image);
+    console.log('Edit DocFile Saved:', edit_doc_file);
+
+    // Send a POST request to the /edit route with the values captured above.
+    fetch('edit', {
+        method: 'POST',
+        body: JSON.stringify({
+            id: lesson_id,
+            notes: edit_notes,
+            image: edit_image,
+            doc_upload: edit_doc_file
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Result', result);
+        // Show saved lessons
+        get_saved_lessons();
+    })
+    .catch((error) => {
+        console.log('Error:', error);
+    });
+}
+*/

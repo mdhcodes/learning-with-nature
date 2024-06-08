@@ -4,6 +4,9 @@
 <html lang="en">
     <head>
         <title>{% block title %}Learning With Nature{% endblock %}</title>
+
+        <!-- ADD FAVICON -->
+        
         <!-- Bootstrap 5.3 -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <!-- Custom CSS -->
@@ -26,8 +29,8 @@
                             <a class="nav-link" href="#">Hello, {{ user.username }}</a>
                         </li>
                         <li class="nav-item">
-                            <!-- <a id="saved" class="nav-link" href="{% url 'saved' %}">Saved Lessons</a> --><!-- Sends json data to the browser via href path /saved -->
-                            <button id="saved" class="nav-link">Saved Lessons</button><!-- Sends data to the console -->
+                            <!-- <a id="saved" class="nav-link" href="{% url 'saved' %}">Saved Lessons</a> --><!-- When the 'Saved Lessons' link <a> is clicked, the program sends/displays JSON data to the browser via href route/path /saved which is not the desired outcome. -->
+                            <button id="saved" class="nav-link">Saved Lessons</button><!-- When the button is clicked, the program sends data to the console as expected. -->
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Log Out</a>

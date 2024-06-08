@@ -85,13 +85,30 @@
     <div id="state-parks">        
     </div>
 
-    <div id="park-lessons">        
+    <div id="park-learning">        
     </div>
 
     <div id="np-lessons">        
     </div>
 
     <div id="saved-lessons">        
+    </div>
+
+    <div id="edit-lesson">
+        {% comment %} 
+        Requirements for uploading images and files.
+        https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files-to-a-form 
+        <form enctype="multipart/form-data" method="post" action="/foo/"> 
+        {% endcomment %}
+        <h3>Edit Lesson</h3>
+
+        <div id="stored-lesson-data"></div>
+
+        {% comment %} <form enctype="multipart/form-data" action="{% url 'edit' lesson_id %}" method="post"> {% endcomment %}
+        <form id="edit-form" enctype="multipart/form-data" method="post">            
+            {% csrf_token %}
+            {% comment %} {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph. {% endcomment %} 
+        </form>        
     </div>
 
 {% endblock body %}

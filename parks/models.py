@@ -20,7 +20,7 @@ class Lesson(models.Model):
     commonCore = models.JSONField()
     subject = models.JSONField()
     duration = models.TextField()
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True) # blank=True - field may be empty.
     image = models.ImageField(upload_to='images/', blank=True)
     # https://www.geeksforgeeks.org/filefield-django-models/
     doc_upload = models.FileField(upload_to='uploads/%Y/%m/%d', blank=True)

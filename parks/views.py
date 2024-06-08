@@ -12,10 +12,80 @@ from .models import User, Lesson
 
 from learning.settings import NP_API_KEY
 
+from .forms import CreateLessonForm
+
 # Create your views here.
 
-def index(request):    
-    return render(request, 'parks/index.html')
+def index(request): 
+
+    # form = CreateLessonForm()
+      
+    # context = {
+    #     'form': form
+    # } 
+    return render(request, 'parks/index.html') # , context)
+
+
+def edit(request, lesson_id):
+# def edit(request):
+
+    print('Lesson ID:', lesson_id)
+
+    if request.method == 'POST':
+
+        edit_img_data = request.FILES['image']
+        print('Image File:', edit_img_data)
+
+        edit_file_data = request.FILES['doc-file']
+        print('Doc File:', edit_file_data)
+
+        # Get lesson form data
+        data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream
+        
+        #  id: lesson_id,
+        # notes: edit_notes,
+        # image: edit_image,
+        # doc_upload: edit_doc_file
+
+        id = data.get('id')
+        print('ID:', id)
+        notes = data['notes']
+        print('Notes:', notes)
+        image = data['image']
+        print('Image:', image)
+        doc_upload = data['doc_upload']
+        print('Doc Upload:', doc_upload)
+
+
+
+
+        return JsonResponse({'message': 'Lesson updated successfully.'})
+    
+    else:
+        return JsonResponse({'error': 'POST request required.'}) 
+
+
+def get_lesson_to_edit(request, lesson_id):
+
+    print('Request', request)
+    print('Lesson ID:', lesson_id)
+
+    # lesson_data = CreateLessonForm(request.POST, request.FILES)
+    # print('Lesson Data:', lesson_data)
+
+    # current_username = request.user
+    current_user_id = request.user.id
+    print('Current User:', current_user_id)
+
+    # Get the saved lesson data for the lesson with the given lesson_id for the specified user.
+    lesson = Lesson.objects.get(pk=lesson_id)     
+    print('Lesson:', lesson)
+
+    # TypeError at /saved - In order to allow non-dict objects to be serialized set the safe parameter to False.
+    # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
+        
+    # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
+    return JsonResponse(lesson.serialize())
 
 
 # https://docs.djangoproject.com/en/5.0/topics/auth/default/#how-to-log-a-user-in

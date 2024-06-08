@@ -35,9 +35,10 @@ body {
 }
 
 #state-parks,
-#park-lessons,
+#park-learning,
 #np-lessons,
-#saved-lessons {
+#saved-lessons,
+#edit-lesson {
     margin-top: 3em;;
 }
 
@@ -55,3 +56,26 @@ body {
     font-weight: bold;
     font-size: 1.1em;
 }
+
+#stored-lesson-data,
+#notes,
+#image-upload {
+    margin-bottom: 2em;
+}
+
+#image-upload,
+#doc-file,
+#save-edit {
+    display: block;
+}
+
+#save-edit {
+    margin-top: 2em;
+    background-color: #537765;
+    border-color: #537765;
+}
+
+/* STYLE LOGIN AND REGISTER PAGES WITH GREEN COLORS AND POSSIBLY AN IMAGE */
+
+/* ADD MEDIA QUERIES TO ADJUST VIEW ON TABLET AND MOBILE DEVICES */
+
