@@ -8,31 +8,41 @@ from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 
-from .models import User, Lesson
+from .models import User, Lesson, Resources
 
 from learning.settings import NP_API_KEY
 
-from .forms import CreateLessonForm
+from .forms import CreateResourcesForm
 
 # Create your views here.
 
 def index(request): 
 
-    # form = CreateLessonForm()
+    # form = CreateResourcesForm() # Unable to hide the form - ImageField object has no attribute is_hidden. 
       
     # context = {
-    #     'form': form
+        # 'form': form
     # } 
-    return render(request, 'parks/index.html') # , context)
+    return render(request, 'parks/index.html') #, context)
 
 
-def edit(request, lesson_id):
-# def edit(request):
+# def edit(request, lesson_id):
+def edit(request):
 
-    print('Lesson ID:', lesson_id)
+    # print('Lesson ID:', lesson_id)
 
     if request.method == 'POST':
 
+        edit_form_data = CreateResourcesForm(request.POST or None, request.FILES or None)
+        print('Edit Form Data:', edit_form_data)
+
+        # Get user from the POST request.
+        user_name = request.user
+        author = user_name
+
+        # Capture the edit_form_data values.
+        notes = edit_form_data['notes'].value()
+        
         edit_img_data = request.FILES['image']
         print('Image File:', edit_img_data)
 
@@ -62,12 +72,22 @@ def edit(request, lesson_id):
         return JsonResponse({'error': 'POST request required.'}) 
 
 
+def get_edit_form(request): 
+
+    form = CreateResourcesForm() # Unable to hide the form - ImageField object has no attribute is_hidden. 
+      
+    context = {
+        'form': form
+    } 
+    return render(request, 'parks/index.html', context)
+
+
 def get_lesson_to_edit(request, lesson_id):
 
     print('Request', request)
     print('Lesson ID:', lesson_id)
 
-    # lesson_data = CreateLessonForm(request.POST, request.FILES)
+    # lesson_data = CreateResourcesForm(request.POST, request.FILES)
     # print('Lesson Data:', lesson_data)
 
     # current_username = request.user

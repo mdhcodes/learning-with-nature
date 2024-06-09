@@ -20,10 +20,6 @@ class Lesson(models.Model):
     commonCore = models.JSONField()
     subject = models.JSONField()
     duration = models.TextField()
-    notes = models.TextField(blank=True) # blank=True - field may be empty.
-    image = models.ImageField(upload_to='images/', blank=True)
-    # https://www.geeksforgeeks.org/filefield-django-models/
-    doc_upload = models.FileField(upload_to='uploads/%Y/%m/%d', blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educator')
     date = models.DateTimeField(auto_now=False,  auto_now_add=True)
 
@@ -43,9 +39,24 @@ class Lesson(models.Model):
             "commonCore": self.commonCore,
             "subject": self.subject,
             "duration": self.duration,
+            "user": json.dumps(str(self.user)), 
+            "date": self.date.strftime("%b %d %Y, %I:%M %p"),
+        }
+    
+class Resources(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='edited_lesson')
+    notes = models.TextField(blank=True) # blank=True - field may be empty.
+    image = models.ImageField(upload_to='images/', blank=True)
+    # https://www.geeksforgeeks.org/filefield-django-models/
+    doc_upload = models.FileField(upload_to='uploads/%Y/%m/%d', blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='edited_by')
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "lesson": self.lesson,
             "notes": self.notes,
             "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
             "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
             "user": json.dumps(str(self.user)), 
-            "date": self.date.strftime("%b %d %Y, %I:%M %p"),
         }

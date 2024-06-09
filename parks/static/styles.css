@@ -25,23 +25,23 @@ body {
     background-color: #123524;
 }
 
-
-.park-data {
+.park-data { 
     margin-top: 5em;
 }
+
 
 #select-state {
     margin-top: 2em;
 }
+
 
 #state-parks,
 #park-learning,
 #np-lessons,
 #saved-lessons,
 #edit-lesson {
-    margin-top: 3em;;
+    margin-top: 3em;
 }
-
 
 .parks,
 .lessons {
@@ -57,11 +57,13 @@ body {
     font-size: 1.1em;
 }
 
+
 #stored-lesson-data,
 #notes,
 #image-upload {
     margin-bottom: 2em;
 }
+
 
 #image-upload,
 #doc-file,

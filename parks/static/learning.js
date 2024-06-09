@@ -649,15 +649,45 @@ const get_lesson = (lesson_id) => {
 
         const duration = document.createElement('p');
         duration.innerHTML = `Duration: ${result.duration}`;
-        stored_lesson_data.append(duration);  
+        stored_lesson_data.append(duration); 
+
+        edit_lesson(lesson_id);
+       
+    });
+}
         
+
+        // ****** End get_lesson and begin edit lesson below. ******
+        // To solve ERROR: RawPostDataException at /edit/8 You cannot access body after reading from request's data stream
+        // https://github.com/encode/django-rest-framework/issues/2774
+        // https://www.youtube.com/watch?v=wc6W-RaMJ7k - Traceback Basics
+
+
+// Edit a lesson.
+const edit_lesson = (lesson_id) => {
+
+    console.log('Edit_Lesson_ID:', lesson_id);
+
         // Display form to edit lesson plan in the edit-lesson div.
         const edit_lesson = document.getElementById('edit-lesson');
         edit_lesson.style.display = 'block';
 
-        const edit_url = `/edit/${lesson_id}`;
+        // Display the form.
+        fetch('get_edit_form')
+        .then(response => response)
+            // console.log('Response:', response.json());
+
+            // ****** ERROR - AttributeError at /get_edit_form - 'ImageField' object has no attribute 'is_hidden'
+        
+        
+        .then((result) => {
+            console.log('Result:', result);
+        });
+
+        
+        // const edit_url = `/edit/${lesson_id}`;
         const edit_form = document.querySelector('#edit-form');
-        edit_form.setAttribute('action', edit_url)
+        // edit_form.setAttribute('action', edit_url)
 
         const notes_label = document.createElement('label');
         notes_label.setAttribute('for', 'notes');
@@ -706,6 +736,7 @@ const get_lesson = (lesson_id) => {
         save_button.innerHTML = 'Save';
         edit_form.append(save_button);             
         
+
         // Add event listener to Save button.
         // save_button.addEventListener('click', edit_lesson.bind(null, lesson_id));
 
@@ -720,7 +751,7 @@ const get_lesson = (lesson_id) => {
         //     edit_lesson(lesson_id, edit_notes, edit_image, edit_doc_file);
         // });
         
-    });
+    //}); 
 
     /*
     // Add event listener to Save button.
@@ -730,6 +761,7 @@ const get_lesson = (lesson_id) => {
     }
     */
 }
+
 
 /*
 // Edit a specific lesson

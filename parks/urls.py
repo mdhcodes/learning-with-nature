@@ -15,7 +15,9 @@ urlpatterns = [
     path('park_lessons/<str:park_code>', views.park_lessons, name='park_lessons'),
     path('save_park_lesson', views.save_park_lesson, name='save_park_lesson'),
     path('saved', views.saved, name='saved'),
-    path('edit/<int:lesson_id>', views.edit, name='edit'),
+    # path('edit/<int:lesson_id>', views.edit, name='edit'),
+    path('edit', views.edit, name='edit'),
     # path('edit', views.edit, name='edit'),
+    path('get_edit_form', views.get_edit_form, name='get_edit_form'),
     path('get_lesson_to_edit/<int:lesson_id>', views.get_lesson_to_edit, name='get_lesson_to_edit'),
 ]

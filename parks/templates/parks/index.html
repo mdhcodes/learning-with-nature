@@ -21,7 +21,7 @@
 
     <a class="find-park navbar-brand" href="{% url 'index' %}">Find Parks by State</a>
     
-    <div id="search-by-state" class="container mb-3">
+    <div id="search-by-state" class="container">
 
         <!-- https://gist.github.com/RichLogan/9903043 -->
         <!-- Select the option/state and the event is triggered. -->
@@ -105,9 +105,9 @@
         <div id="stored-lesson-data"></div>
 
         {% comment %} <form enctype="multipart/form-data" action="{% url 'edit' lesson_id %}" method="post"> {% endcomment %}
-        <form id="edit-form" enctype="multipart/form-data" method="post">           
+        <form id="edit-form" enctype="multipart/form-data" action="{% url 'edit' %}" method="post">           
             {% csrf_token %}
-            {% comment %} {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph. {% endcomment %} 
+            {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph.  {% endcomment %}
         </form>        
     </div>
 
