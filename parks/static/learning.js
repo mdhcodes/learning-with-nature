@@ -120,6 +120,7 @@ const get_parks = (state) => {
 
         const state_parks = document.getElementById('state-parks');
         const section = document.createElement('section'); 
+        section.setAttribute('class', 'container');
         const location = document.createElement('h1'); 
         location.innerHTML = `${state_name} - ${result.total} National Parks`;
         section.append(location);
@@ -128,8 +129,11 @@ const get_parks = (state) => {
 
         console.log('Park Data:', result.data)
 
-        for (data in result.data) {                                         
+        for (data in result.data) {    
+            const row = document.createElement('div');
+            row.setAttribute('class', 'row parks');                                     
             const div = document.createElement('div'); 
+            div.setAttribute('class', 'col-md-9');
             const park_designation = document.createElement('p');
             park_designation.innerHTML = result.data[data].designation;
             div.append(park_designation);
@@ -145,23 +149,24 @@ const get_parks = (state) => {
             park_link.addEventListener('click', park_learning_links.bind(null, park_code, full_park_name)); // park_learning_links(park_code, full_park_name) immediately invokes the park_learning_links function.
             park_name.append(park_link);         
             div.append(park_name);
-            park_city = document.createElement('p');
-            park_city.innerHTML = result.data[data].addresses[0].city;        
-            div.append(park_city);
-            park_state = document.createElement('p');
-            park_state = result.data[data].addresses[0].stateCode;        
-            div.append(park_state);
+            park_city_state = document.createElement('p');
+            park_city_state.innerHTML = `${result.data[data].addresses[0].city}, ${result.data[data].addresses[0].stateCode}`;        
+            div.append(park_city_state);
             park_description = document.createElement('p');
             park_description.innerHTML = result.data[data].description;     
             div.append(park_description);
-            div.setAttribute('class', 'parks');
-            section.append(div);
-            // const hr = document.createElement('hr');
-            // div.append(hr);
-            // park_image = document.createElement('img');
-            // park_image.setAttribute('src', result.data[data].images[0].url)
-            // park_image.setAttribute('alt', result.data[data].images[0].altText)   
-            // div.append(park_image);
+            row.append(div);
+
+            const image_div = document.createElement('div');
+            image_div.setAttribute('class', 'col-md-3 image-div');
+            park_image = document.createElement('img');
+            park_image.setAttribute('class', 'img-thumbnail float-end');
+            park_image.setAttribute('src', result.data[data].images[0].url)
+            park_image.setAttribute('alt', result.data[data].images[0].altText) 
+            image_div.append(park_image);
+            row.append(image_div);
+            
+            section.append(row);
         }
        
         state_parks.append(section);

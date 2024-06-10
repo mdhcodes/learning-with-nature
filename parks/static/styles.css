@@ -29,11 +29,20 @@ body {
     margin-top: 5em;
 }
 
-
 #select-state {
     margin-top: 2em;
 }
 
+.image-div {
+    max-width: 150px;
+    min-width: 150px;    
+}
+
+/* https://stackoverflow.com/questions/13632985/limit-the-height-of-a-responsive-image-with-css */
+.image-div img {
+    max-width: 100%;
+    max-height: 100%;
+}
 
 #state-parks,
 #park-learning,
