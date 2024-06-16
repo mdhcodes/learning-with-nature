@@ -2,10 +2,10 @@
 
 {% load static %}
 
-{% load env_extras %}
+{% comment %} {% load env_extras %} {% endcomment %}
 
 {% block body %}
-    <input id="NP_API_KEY" value="{% get_env_var 'NP_API_KEY' %}" type="hidden" />
+    {% comment %} <input id="NP_API_KEY" value="{% get_env_var 'NP_API_KEY' %}" type="hidden" /> {% endcomment %}
     <input id="current-user" value="{{ user }}" type="hidden" />
 
     {% if message %}

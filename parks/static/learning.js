@@ -160,7 +160,7 @@ const get_parks = (state) => {
             const image_div = document.createElement('div');
             image_div.setAttribute('class', 'col-md-3 image-div');
             park_image = document.createElement('img');
-            park_image.setAttribute('class', 'img-thumbnail float-end');
+            park_image.setAttribute('class', 'img-fluid img-thumbnail float-end');
             park_image.setAttribute('src', result.data[data].images[0].url)
             park_image.setAttribute('alt', result.data[data].images[0].altText) 
             image_div.append(park_image);
