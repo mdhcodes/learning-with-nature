@@ -48,7 +48,7 @@ class Resources(models.Model):
     notes = models.TextField(blank=True) # blank=True - field may be empty.
     image = models.ImageField(upload_to='images/', blank=True)
     # https://www.geeksforgeeks.org/filefield-django-models/
-    doc_upload = models.FileField(upload_to='uploads/%Y/%m/%d', blank=True)
+    doc_upload = models.FileField(upload_to='uploads/', blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='edited_by')
 
     def serialize(self):

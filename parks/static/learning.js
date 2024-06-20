@@ -743,18 +743,18 @@ const edit_lesson = (lesson_id) => {
         
 
         // Add event listener to Save button.
-        // save_button.addEventListener('click', edit_lesson.bind(null, lesson_id));
+        save_button.addEventListener('click', save_edits.bind(null, lesson_id));
 
-        // document.getElementById('save-edit').addEventListener('click', (e) => {
-        //     e.preventDefault(); // Prevent form submission
+        document.getElementById('save-edit').addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent form submission
 
-        //     // Store user input/edit form field values in the following variables.
-        //     const edit_notes = document.querySelector('#notes').value;
-        //     const edit_image = document.querySelector('#image-upload').value;
-        //     const edit_doc_file = document.querySelector('#doc-file').value;
+            // Store user input/edit form field values in the following variables.
+            const edit_notes = document.querySelector('#notes').value;
+            const edit_image = document.querySelector('#image-upload').value;
+            const edit_doc_file = document.querySelector('#doc-file').value;
             
-        //     edit_lesson(lesson_id, edit_notes, edit_image, edit_doc_file);
-        // });
+            save_edits(lesson_id, edit_notes, edit_image, edit_doc_file);
+        });
         
     //}); 
 
@@ -765,6 +765,71 @@ const edit_lesson = (lesson_id) => {
         save_edit.addEventListener('click', edit_lesson.bind(null, lesson_id));      
     }
     */
+}
+
+
+// **** Learn how to access csrf token from django form in javascript file - eliminate getCookie function. ****
+
+// Fetch error in python - Forbidden (CSRF token missing.): /save_park_lesson
+// A fetch POST request from JS requires a CSRF token.
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+const save_edits = (lesson_id, edit_notes, edit_image, edit_doc_file) => {
+
+    // Store user input/edit form field values in the following variables.
+    // const edit_notes = document.querySelector('#notes').value;
+    // const edit_image = document.querySelector('#image-upload').value;
+    // const edit_doc_file = document.querySelector('#doc-file').value;
+
+    console.log('Edit ID saved:', lesson_id);
+    console.log('Edit Notes Saved:', edit_notes);
+    console.log('Edit Image Saved:', edit_image);
+    console.log('Edit DocFile Saved:', edit_doc_file);
+
+    // https://stackoverflow.com/questions/66293685/how-do-i-receive-image-file-in-django-view-from-fetch-post-without-using-django
+    let formData = new FormData();
+    formData.append('id', lesson_id);
+    formData.append('notes', edit_notes);
+    formData.append('image', edit_image);
+    formData.append('doc_upload', edit_doc_file);
+    
+    // Send a POST request to the /edit route with the values captured above.
+    fetch('edit', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+        body: formData,
+        /*body: JSON.stringify({ // Error with JSON.stringify for image and doc_upload because they are files.
+            id: lesson_id,
+            notes: edit_notes,
+            image: edit_image,
+            doc_upload: edit_doc_file
+        })*/
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Result', result);
+        // Show saved lessons
+        get_saved_lessons();
+    })
+    .catch((error) => {
+        console.log('Error:', error);
+    });
 }
 
 

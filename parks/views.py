@@ -33,38 +33,65 @@ def edit(request):
 
     if request.method == 'POST':
 
-        edit_form_data = CreateResourcesForm(request.POST or None, request.FILES or None)
-        print('Edit Form Data:', edit_form_data)
+        print('Edit Request:', request)
+        print('Edit Request.FILES:', request.FILES)
+
+        id = request.POST.get('id')
+        print('Edit ID:', id)
+
+        notes = request.POST.get('notes')
+        print('Edit Notes:', notes)
+
+        my_files = request.FILES
+        print('My Files:', my_files)
+        for i in my_files:
+            print(i, 'Edit FILE in request.FILES', my_files[i])
+
+        # image = request.FILES['image']
+        # print('Edit Image:', image)
+
+        # doc_upload = request.FILES['doc_upload']
+        # print('Edit Doc Upload:', doc_upload)
+
+        # edit_form_data = CreateResourcesForm(request.POST or None, request.FILES or None)
+        # edit_form_data = CreateResourcesForm(request.POST, request.FILES)
+        # print('Edit Form Data:', edit_form_data)
 
         # Get user from the POST request.
         user_name = request.user
         author = user_name
 
         # Capture the edit_form_data values.
-        notes = edit_form_data['notes'].value()
+        # notes = edit_form_data['notes'].value() # Returns None - empty value
+        # print('Notes:', notes)
         
-        edit_img_data = request.FILES['image']
-        print('Image File:', edit_img_data)
+        # edit_img_data = request.FILES['image']
+        # edit_img_data = edit_form_data['image'].value() # Returns None - empty value
+        # print('Image File:', edit_img_data)
 
-        edit_file_data = request.FILES['doc-file']
-        print('Doc File:', edit_file_data)
+        # edit_file_data = request.FILES['doc-file']
+        # edit_file_data = edit_form_data['doc-file'].value() # Returns None - empty value
+        # print('Doc File:', edit_file_data)
 
         # Get lesson form data
-        data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream
-        
-        #  id: lesson_id,
+        # data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream - Stopped when I didn't include edit_form_data = CreateResourcesForm(request.POST, request.FILES)
+        # print('Data:', data)
+        # id: lesson_id,
         # notes: edit_notes,
         # image: edit_image,
         # doc_upload: edit_doc_file
 
-        id = data.get('id')
-        print('ID:', id)
-        notes = data['notes']
-        print('Notes:', notes)
-        image = data['image']
-        print('Image:', image)
-        doc_upload = data['doc_upload']
-        print('Doc Upload:', doc_upload)
+        # id = data.get('id')
+        # print('ID Line 65: ', id)
+
+        # notes = data['notes']
+        # print('Notes Line 68:', notes)
+
+        # image = data['image']
+        # print('Image Line 71:', image)
+
+        # doc_upload = data['doc_upload']
+        # print('Doc Upload Line 74:', doc_upload)
 
         return JsonResponse({'message': 'Lesson updated successfully.'})
     
