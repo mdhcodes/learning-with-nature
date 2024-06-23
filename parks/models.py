@@ -56,6 +56,9 @@ class Resources(models.Model):
             "id": self.id,
             "lesson": self.lesson,
             "notes": self.notes,
+            # https://stackoverflow.com/questions/7497138/how-do-i-serialize-an-imagefield-in-django
+            # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
+            # https://github.com/encode/django-rest-framework/discussions/8024
             "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
             "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
             "user": json.dumps(str(self.user)), 

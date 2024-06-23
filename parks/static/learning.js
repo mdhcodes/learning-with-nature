@@ -746,14 +746,36 @@ const edit_lesson = (lesson_id) => {
         save_button.addEventListener('click', save_edits.bind(null, lesson_id));
 
         document.getElementById('save-edit').addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault(); // ****** Prevent form submission / page reload ******
+
+            // ********** 
+            // Errors persist:
+            // console.log errors
+            // Edit Image Saved: C:\fakepath\testing.jpg
+            // Edit DocFile Saved: C:\fakepath\testing.pdf
+            // *** SOLUTION *** https://davidwalsh.name/fakepath *** Remove the fake path
+            // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#value
+            // Security Feature - "The value is always the file's name prefixed with C:\fakepath\, which isn't the real path of the file. This is to prevent malicious software from guessing the user's file structure."
+            // **********
 
             // Store user input/edit form field values in the following variables.
             const edit_notes = document.querySelector('#notes').value;
-            const edit_image = document.querySelector('#image-upload').value;
-            const edit_doc_file = document.querySelector('#doc-file').value;
-            
-            save_edits(lesson_id, edit_notes, edit_image, edit_doc_file);
+            // const edit_image = document.querySelector('#image-upload').value.replace('C:\\fakepath\\', '');
+            // const edit_doc_file = document.querySelector('#doc-file').value.replace('C:\\fakepath\\', '');   
+
+            // Get form element
+            // https://dev.to/tochimclaren/django-ajax-form-with-fetch-api-lob
+            // https://stackoverflow.com/questions/166221/how-can-i-upload-files-asynchronously-with-jquery/8758614#8758614
+            // https://stackoverflow.com/questions/73367729/how-to-upload-an-image-to-django-backend-using-react-and-fetch-it
+            // https://stackoverflow.com/questions/46640024/how-do-i-post-form-data-with-fetch-api/46642899#46642899
+            // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+
+            // const edit_form = document.querySelector('#edit-form');
+            formData = new FormData(edit_form);
+            console.log('Edit Form Data:', formData);
+                        
+            // save_edits(lesson_id, edit_notes, edit_image, edit_doc_file, img, doc, formData);
+            save_edits(lesson_id, edit_notes, formData);
         });
         
     //}); 
@@ -790,8 +812,8 @@ function getCookie(name) {
 }
 
 
-const save_edits = (lesson_id, edit_notes, edit_image, edit_doc_file) => {
-
+// const save_edits = (lesson_id, edit_notes, edit_image, edit_doc_file, img, doc, formData) => {
+const save_edits = (lesson_id, edit_notes, formData) => {
     // Store user input/edit form field values in the following variables.
     // const edit_notes = document.querySelector('#notes').value;
     // const edit_image = document.querySelector('#image-upload').value;
@@ -799,37 +821,55 @@ const save_edits = (lesson_id, edit_notes, edit_image, edit_doc_file) => {
 
     console.log('Edit ID saved:', lesson_id);
     console.log('Edit Notes Saved:', edit_notes);
-    console.log('Edit Image Saved:', edit_image);
-    console.log('Edit DocFile Saved:', edit_doc_file);
+    // console.log('Edit Image Saved:', edit_image);
+    // console.log('Edit DocFile Saved:', edit_doc_file);    
 
-    // https://stackoverflow.com/questions/66293685/how-do-i-receive-image-file-in-django-view-from-fetch-post-without-using-django
-    let formData = new FormData();
+    // console.log('IMG file in save_edits:', img);
+    // console.log('DOC file in save_edits:', doc);
+
+    console.log('Edit Form Data in save_edits:', formData);
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+    // let formData = new FormData();
     formData.append('id', lesson_id);
     formData.append('notes', edit_notes);
-    formData.append('image', edit_image);
-    formData.append('doc_upload', edit_doc_file);
+    // formData.append('image', img); // map to model key image
+    // formData.append('doc_upload', doc);
     
-    // Send a POST request to the /edit route with the values captured above.
     fetch('edit', {
         method: 'POST',
         headers: {'X-CSRFToken': getCookie('csrftoken')},
         body: formData,
-        /*body: JSON.stringify({ // Error with JSON.stringify for image and doc_upload because they are files.
+    })
+    .then(response => response.json())
+    .catch(error => console.error('formData Error:', error));
+
+      
+  /* 
+    // Send a POST request to the /edit route with the values captured above.
+    fetch('edit', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+        // body: formData,
+        body: JSON.stringify({ // Error with JSON.stringify for image and doc_upload because they are files.
             id: lesson_id,
             notes: edit_notes,
-            image: edit_image,
-            doc_upload: edit_doc_file
-        })*/
+            // image: edit_image,
+            // doc_upload: edit_doc_file,
+            // image: img,
+            // doc_upload: doc
+        })
     })
     .then(response => response.json())
     .then(result => {
-        console.log('Result', result);
+        console.log('Result After save_edits:', result);
         // Show saved lessons
-        get_saved_lessons();
+        // get_saved_lessons(); 
     })
     .catch((error) => {
         console.log('Error:', error);
     });
+    */
 }
 
 

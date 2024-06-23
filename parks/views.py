@@ -31,6 +31,9 @@ def edit(request):
 
     # print('Lesson ID:', lesson_id)
 
+
+    # FormData
+    # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
     if request.method == 'POST':
 
         print('Edit Request:', request)
@@ -42,16 +45,18 @@ def edit(request):
         notes = request.POST.get('notes')
         print('Edit Notes:', notes)
 
-        my_files = request.FILES
-        print('My Files:', my_files)
-        for i in my_files:
-            print(i, 'Edit FILE in request.FILES', my_files[i])
+        """
+        Errors persist:
+        python/django errors
+        # django.utils.datastructures.MultiValueDictKeyError: 'image'
+        """
 
-        # image = request.FILES['image']
-        # print('Edit Image:', image)
+        image = request.FILES['image'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'image'
+        print('Edit Image:', image)
 
-        # doc_upload = request.FILES['doc_upload']
-        # print('Edit Doc Upload:', doc_upload)
+        doc_upload = request.FILES['doc-file'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'doc-file'
+        # doc_upload = request.FILES['doc_upload'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'doc_upload'
+        print('Edit Doc Upload:', doc_upload)
 
         # edit_form_data = CreateResourcesForm(request.POST or None, request.FILES or None)
         # edit_form_data = CreateResourcesForm(request.POST, request.FILES)
@@ -61,37 +66,75 @@ def edit(request):
         user_name = request.user
         author = user_name
 
+        lesson_id = Lesson.objects.get(pk=id)
+
+        resources = Resources()
+        resources.lesson = lesson_id
+        resources.notes = notes
+        resources.author = author
+
+        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
+        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
+            resources.image = image
+        
+        if len(doc_upload) != 0:
+            resources.doc_upload = doc_upload
+
+        resources.save()
+
         # Capture the edit_form_data values.
+        # notes = edit_form_data['notes'] # Returns HTML element
         # notes = edit_form_data['notes'].value() # Returns None - empty value
         # print('Notes:', notes)
         
-        # edit_img_data = request.FILES['image']
+        # edit_img_data = request.FILES['image'] # KeyError: 'image' - django.utils.datastructures.MultiValueDictKeyError: 'image'
         # edit_img_data = edit_form_data['image'].value() # Returns None - empty value
         # print('Image File:', edit_img_data)
 
-        # edit_file_data = request.FILES['doc-file']
+        # edit_file_data = request.FILES['doc_upload']
         # edit_file_data = edit_form_data['doc-file'].value() # Returns None - empty value
         # print('Doc File:', edit_file_data)
 
+        """
+        # JSON.stringify
         # Get lesson form data
-        # data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream - Stopped when I didn't include edit_form_data = CreateResourcesForm(request.POST, request.FILES)
-        # print('Data:', data)
+        data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream - Stopped when I didn't include edit_form_data = CreateResourcesForm(request.POST, request.FILES)
+        print('Data:', data)
         # id: lesson_id,
         # notes: edit_notes,
         # image: edit_image,
         # doc_upload: edit_doc_file
 
-        # id = data.get('id')
-        # print('ID Line 65: ', id)
+        id = data.get('id')
+        print('ID Line 65: ', id)
+        lesson_id = Lesson.objects.get(pk=id)
 
-        # notes = data['notes']
-        # print('Notes Line 68:', notes)
+        notes = data['notes']
+        print('Notes Line 68:', notes)
 
-        # image = data['image']
+        # image = data['image'] # Returns KeyError - Possibly because this is a file object not a string
+        # image = data.get('image') # No KeyError
         # print('Image Line 71:', image)
 
-        # doc_upload = data['doc_upload']
+        # doc_upload = data['doc_upload'] # Returns KeyError
+        # doc_upload = data.get('doc_upload') # No KeyError
         # print('Doc Upload Line 74:', doc_upload)
+
+        
+        resources = Resources()
+        resources.lesson = lesson_id
+        resources.notes = notes
+        resources.author = author
+
+        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
+        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
+            resources.image = image
+        
+        if len(doc_upload) != 0:
+            resources.doc_upload = doc_upload
+
+        resources.save()
+        """
 
         return JsonResponse({'message': 'Lesson updated successfully.'})
     
