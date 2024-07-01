@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     select_state.addEventListener('change', () => {
         const state = select_state.value;
-        // console.log('State:', state)
 
         get_parks(state);
     });
@@ -25,16 +24,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const edit_lesson = document.querySelector('#edit-lesson');
             console.log(edit_lesson);
             
-            if (edit_lesson.style.display === 'block') {
+            // if (edit_lesson.style.display === 'block') {
                 // Removing a div clears the page and does not display new results.
                 // Hide all child nodes of edit-lesson (stored-lesson-data and edit-form)
                 // edit_lesson.style.display = 'none';
                 // Refresh the page
                 // this.location.reload();                
                 // get_saved_lessons();
-            } else {
+            // } else {
             // 
-            }
+            // }
             get_saved_lessons();
         });
     }       
@@ -185,16 +184,15 @@ const park_learning_links = (park_code, full_park_name) => {
     // Send a GET request to the National Parks Service with the park_code value.
     fetch(`park_learning/${park_code}`)
     .then(response => {
-        // console.log('Response:', response)
         return response.json();
     })
-    .then(result => {
-        // console.log('Result:', result)  
+    .then(result => { 
         
         console.log('Park Learning Data:', result.data)  // Limit: 50
 
         // Hide the state-parks div.
         document.getElementById('state-parks').style.display = 'none';
+
         // Display the park-lessons div.
         const park_learning = document.getElementById('park-learning');     
         park_learning.style.display = 'block';
@@ -241,8 +239,7 @@ const park_learning_links = (park_code, full_park_name) => {
     })
     .catch(error => {
         console.log('Error', error);
-    });        
-
+    });      
 }
 
 
@@ -251,11 +248,9 @@ const get_park_lessons = (park_code, full_park_name) => {
     // Send a GET request to the National Parks Service for all lesson plans.
     fetch('all_park_lessons')
     .then(response => {
-        // console.log('Response:', response)
         return response.json();
     })
     .then(result => {
-        // console.log('Result:', result)
 
         // Display the following divs
         document.getElementById('park-learning').style.display = 'block';
@@ -276,9 +271,8 @@ const get_park_lessons = (park_code, full_park_name) => {
         for (data in result.data) {                    
 
             for (park in result.data[data].parks) {
-                // console.log('Park Lessons Data:', result.data[data])    
-
-            // console.log('All Lessons:', result.data[data].parks);            
+                // console.log('Park Lessons Data:', result.data[data]);
+                // console.log('All Lessons:', result.data[data].parks);            
             
                 if (park_code === result.data[data].parks[park] && result.data[data].parks.length > 0) {
 
@@ -361,10 +355,8 @@ const get_park_lessons = (park_code, full_park_name) => {
                 const lesson_id = target.dataset.lessonid;
 
                 save_a_lesson(park_code, lesson_id);                
-
             })
         });        
-
     });
 }
 
@@ -375,55 +367,34 @@ const save_a_lesson = (park_code, lesson_id) => {
     console.log('Saving Lesson ID:', lesson_id);
     // Connect save button with the specific lesson the user wants to save using the parkCode and lessonId.
     // Fetch the lesson data and store it in variables to pass to the database.   
-    fetch(`park_lessons/${park_code}`) // /${lesson_id}`)
+    fetch(`park_lessons/${park_code}`)
     .then(response => {
         return response.json();
     })
     .then(result => {
-        // console.log('Result:', result);
 
         lessons = result.data;
-
         
         // From the array of lesson returned for the parkCode, identify the specific lesson with the lessonId.
         lessons.forEach((lesson) => {
             
             // console.log('Find Park Lesson to Save:', lesson);           
             
-            // Get this button when the event listener is triggered and pass it to this function 
-            // console.log('Lesson_ID:', lesson_id);       
-            // console.log('Lesson.ID from endpoint:', lesson.id);
-
+            // Get this button when the event listener is triggered and pass it to this function
+            // If lesson_id === lesson.id from the endpoint
             if (lesson_id === lesson.id) {
                 console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
                 console.log('Lesson_ID:', lesson_id);
                 // Store lesson data in the following variables.
                 const id = lesson.id;
-                console.log('Lesson.ID:', id);
                 const url = lesson.url;
-                // console.log('URL:', url);
                 const title = lesson.title;
-                // console.log('Title:', title);
                 const parks = lesson.parks;
-                // console.log('Parks:', parks);
                 const questionObjective = lesson.questionObjective;
-                // console.log('Question Objective:', questionObjective);
                 const gradeLevel = lesson.gradeLevel;
-                // console.log('Grade Level:', gradeLevel);
                 const commonCore = lesson.commonCore;
-                // console.log('Common Core:', commonCore);
                 const subject = lesson.subject;
-                // console.log('Subject:', subject);
                 const duration = lesson.duration;
-                // console.log('Duration:', duration);
-                // const notes = lesson.notes;
-                // console.log('Notes:', notes);
-                // const image = lesson.image;
-                // console.log('Image:', image);
-                // const doc_upload = lesson.doc_upload;
-                // console.log('Doc Upload:', doc_upload);
-                // const user = lesson.user;
-                // console.log('User:', user);
 
                 // Fetch error in python - Forbidden (CSRF token missing.): /save_park_lesson
                 // To fetch from JS you must include the CSRF token.
@@ -452,8 +423,6 @@ const save_a_lesson = (park_code, lesson_id) => {
                 if (current_user === 'AnonymousUser') {
                     // If user is not authenticated, send a message to sign in.
                     // Create alert with message()
-                    // console.log('Please sign in to save a lesson');
-                    // <div class="alert alert-warning" role="alert">'Please sign in to save a lesson'</div>
                     const login_message = document.getElementById('login-message');
                     login_message.innerHTML = 'Please sign in to save a lesson';
                     login_message.setAttribute('class', 'alert alert-warning');
@@ -493,19 +462,15 @@ const save_a_lesson = (park_code, lesson_id) => {
                         // Go to the top of the page automatically.
                         document.body.scrollTop = document.documentElement.scrollTop = 0;
                         // Show to saved lessons
-
+                        get_saved_lessons();
                     })
                     .catch((error) => {
                         console.log('Error:', error);
                     });
                 }
-
             }
-
-        });
-        
-    });
-    
+        });        
+    });    
 }
 
 
@@ -537,10 +502,8 @@ const get_saved_lessons = () => {
         saved_lessons.append(hr);
 
         for (lesson in result) {
-            // console.log('Lesson:', result[lesson]);
             
             const lesson_id = result[lesson].id;
-            // console.log('Lesson ID:', lesson_id);
 
             const lesson_div = document.createElement('div');
             lesson_div.setAttribute('class', 'lessons');
@@ -567,42 +530,6 @@ const get_saved_lessons = () => {
     });
 }
 
-/*
-const edit_a_lesson = (lesson_id) => {
-
-    console.log('Edit a Lesson Function:', lesson_id);
-
-    // Pass lesson_id to the edit form action attribute in index.html.
-    // const id = lesson_id;
-    
-    const edit_lesson = document.getElementById('edit-lesson');
-    edit_lesson.style.display = 'block';
-
-    // Hide saved-lessons divs
-    document.getElementById('saved-lessons').style.display = 'none';
-
-    // Display form with saved lesson for the user to edit.
-    edit_lesson(lesson_id);
-
-    /*
-        "id": self.id,
-            "url": self.url,
-            "title": self.title,
-            "parks": self.parks,
-            "questionObjective": self.questionObjective,
-            "gradeLevel": self.gradeLevel,
-            "commonCore": self.commonCore,
-            "subject": self.subject,
-            "duration": self.duration,
-            "notes": self.notes,
-            "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
-            "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
-            "user": json.dumps(str(self.user)), 
-            "date": self.date.strftime("%b %d %Y, %I:%M %p")
-*/
-//}
-
-
 
 const get_lesson = (lesson_id) => {
     console.log('Lesson ID:', lesson_id);
@@ -611,7 +538,7 @@ const get_lesson = (lesson_id) => {
     fetch(`get_lesson_to_edit/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
-        console.log('Result:', result)
+        console.log('Result of get_lesson_to_edit:', result)
 
         // Display results for the user in the stored-lesson-data div.
         const stored_lesson_data = document.getElementById('stored-lesson-data');
@@ -619,10 +546,6 @@ const get_lesson = (lesson_id) => {
 
         // Hide all other divs
         document.getElementById('saved-lessons').style.display = 'none';
-        // document.getElementById('state-parks').style.display = 'none';
-        // document.getElementById('park-learning').style.display = 'none';
-        // document.getElementById('np-lessons').style.display = 'none';
-        // document.getElementById('edit-lesson').style.display = 'none';
        
         const title = document.createElement('p');
         title.innerHTML = `Title: ${result.title} : ${result.id}`;
@@ -660,12 +583,6 @@ const get_lesson = (lesson_id) => {
        
     });
 }
-        
-
-        // ****** End get_lesson and begin edit lesson below. ******
-        // To solve ERROR: RawPostDataException at /edit/8 You cannot access body after reading from request's data stream
-        // https://github.com/encode/django-rest-framework/issues/2774
-        // https://www.youtube.com/watch?v=wc6W-RaMJ7k - Traceback Basics
 
 
 // Edit a lesson.
@@ -680,19 +597,11 @@ const edit_lesson = (lesson_id) => {
         // Display the form.
         fetch('get_edit_form')
         .then(response => response)
-            // console.log('Response:', response.json());
-
-            // ****** ERROR - AttributeError at /get_edit_form - 'ImageField' object has no attribute 'is_hidden'
-        
-        
         .then((result) => {
             console.log('Result:', result);
         });
-
         
-        // const edit_url = `/edit/${lesson_id}`;
         const edit_form = document.querySelector('#edit-form');
-        // edit_form.setAttribute('action', edit_url)
 
         const notes_label = document.createElement('label');
         notes_label.setAttribute('for', 'notes');
@@ -739,8 +648,7 @@ const edit_lesson = (lesson_id) => {
         save_button.setAttribute('id', 'save-edit');
         save_button.setAttribute('class', 'btn btn-success');
         save_button.innerHTML = 'Save';
-        edit_form.append(save_button);             
-        
+        edit_form.append(save_button);               
 
         // Add event listener to Save button.
         save_button.addEventListener('click', save_edits.bind(null, lesson_id));
@@ -748,20 +656,8 @@ const edit_lesson = (lesson_id) => {
         document.getElementById('save-edit').addEventListener('click', (e) => {
             e.preventDefault(); // ****** Prevent form submission / page reload ******
 
-            // ********** 
-            // Errors persist:
-            // console.log errors
-            // Edit Image Saved: C:\fakepath\testing.jpg
-            // Edit DocFile Saved: C:\fakepath\testing.pdf
-            // *** SOLUTION *** https://davidwalsh.name/fakepath *** Remove the fake path
-            // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#value
-            // Security Feature - "The value is always the file's name prefixed with C:\fakepath\, which isn't the real path of the file. This is to prevent malicious software from guessing the user's file structure."
-            // **********
-
             // Store user input/edit form field values in the following variables.
             const edit_notes = document.querySelector('#notes').value;
-            // const edit_image = document.querySelector('#image-upload').value.replace('C:\\fakepath\\', '');
-            // const edit_doc_file = document.querySelector('#doc-file').value.replace('C:\\fakepath\\', '');   
 
             // Get form element
             // https://dev.to/tochimclaren/django-ajax-form-with-fetch-api-lob
@@ -770,23 +666,11 @@ const edit_lesson = (lesson_id) => {
             // https://stackoverflow.com/questions/46640024/how-do-i-post-form-data-with-fetch-api/46642899#46642899
             // https://developer.mozilla.org/en-US/docs/Web/API/FormData
 
-            // const edit_form = document.querySelector('#edit-form');
             formData = new FormData(edit_form);
             console.log('Edit Form Data:', formData);
-                        
-            // save_edits(lesson_id, edit_notes, edit_image, edit_doc_file, img, doc, formData);
+            
             save_edits(lesson_id, edit_notes, formData);
         });
-        
-    //}); 
-
-    /*
-    // Add event listener to Save button.
-    const save_edit = document.querySelector('#save-edit');
-    if (save_edit !== null) {
-        save_edit.addEventListener('click', edit_lesson.bind(null, lesson_id));      
-    }
-    */
 }
 
 
@@ -812,29 +696,15 @@ function getCookie(name) {
 }
 
 
-// const save_edits = (lesson_id, edit_notes, edit_image, edit_doc_file, img, doc, formData) => {
 const save_edits = (lesson_id, edit_notes, formData) => {
-    // Store user input/edit form field values in the following variables.
-    // const edit_notes = document.querySelector('#notes').value;
-    // const edit_image = document.querySelector('#image-upload').value;
-    // const edit_doc_file = document.querySelector('#doc-file').value;
 
     console.log('Edit ID saved:', lesson_id);
-    console.log('Edit Notes Saved:', edit_notes);
-    // console.log('Edit Image Saved:', edit_image);
-    // console.log('Edit DocFile Saved:', edit_doc_file);    
-
-    // console.log('IMG file in save_edits:', img);
-    // console.log('DOC file in save_edits:', doc);
-
+    console.log('Edit Notes Saved:', edit_notes);  
     console.log('Edit Form Data in save_edits:', formData);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/FormData
-    // let formData = new FormData();
     formData.append('id', lesson_id);
     formData.append('notes', edit_notes);
-    // formData.append('image', img); // map to model key image
-    // formData.append('doc_upload', doc);
     
     fetch('edit', {
         method: 'POST',
@@ -842,69 +712,56 @@ const save_edits = (lesson_id, edit_notes, formData) => {
         body: formData,
     })
     .then(response => response.json())
-    .catch(error => console.error('formData Error:', error));
-
-      
-  /* 
-    // Send a POST request to the /edit route with the values captured above.
-    fetch('edit', {
-        method: 'POST',
-        headers: {'X-CSRFToken': getCookie('csrftoken')},
-        // body: formData,
-        body: JSON.stringify({ // Error with JSON.stringify for image and doc_upload because they are files.
-            id: lesson_id,
-            notes: edit_notes,
-            // image: edit_image,
-            // doc_upload: edit_doc_file,
-            // image: img,
-            // doc_upload: doc
-        })
-    })
-    .then(response => response.json())
     .then(result => {
         console.log('Result After save_edits:', result);
-        // Show saved lessons
-        // get_saved_lessons(); 
+        // Show the edited lesson with the updated information.
+        edited_lesson(lesson_id);
     })
-    .catch((error) => {
-        console.log('Error:', error);
-    });
-    */
+    .catch(error => console.error('formData Error:', error));
 }
 
 
-/*
-// Edit a specific lesson
-const edit_lesson = (lesson_id) => {
+// Display the edited lesson
+const edited_lesson = (lesson_id) => {
 
-    // Store user input/edit form field values in the following variables.
-    const edit_notes = document.querySelector('#notes').value;
-    const edit_image = document.querySelector('#image-upload').value;
-    const edit_doc_file = document.querySelector('#doc-file').value;
+    // Display the following div
+    document.querySelector('#edited-lesson').style.display = 'block';
+    
+    // Hide the following divs
+    document.querySelector('#state-parks').style.display = 'none';
+    document.querySelector('#park-learning').style.display = 'none';
+    document.querySelector('#np-lessons').style.display = 'none';
+    document.querySelector('#saved-lessons').style.display = 'none';
+    document.querySelector('#edit-lesson').style.display = 'none';
+    document.querySelector('#park-learning').style.display = 'none';
 
-    console.log('Edit ID saved:', lesson_id);
-    console.log('Edit Notes Saved:', edit_notes);
-    console.log('Edit Image Saved:', edit_image);
-    console.log('Edit DocFile Saved:', edit_doc_file);
-
+    
     // Send a POST request to the /edit route with the values captured above.
-    fetch('edit', {
-        method: 'POST',
-        body: JSON.stringify({
-            id: lesson_id,
-            notes: edit_notes,
-            image: edit_image,
-            doc_upload: edit_doc_file
-        })
-    })
+    fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
         console.log('Result', result);
-        // Show saved lessons
-        get_saved_lessons();
+
+        const edited_lesson_div = document.querySelector('#edited-lesson');
+
+        const heading = document.createElement('h3');
+        heading.innerHTML = `Edited Lesson ID: ${lesson_id}`
+        edited_lesson_div.append(heading);        
+
+        const lesson_url_p = document.createElement('p');
+        lesson_url_p.innerHTML = `Lesson URL: ${result[0].url}`;
+        edited_lesson_div.append(lesson_url_p);
+
+        const lesson_title_p = document.createElement('p');
+        lesson_title_p.innerHTML = `Lesson Title: ${result[0].title}`;
+        edited_lesson_div.append(lesson_title_p);
+
+        const lesson_notes_p = document.createElement('p');
+        lesson_notes_p.innerHTML = `Lesson Notes: ${result[1].notes}`;
+        edited_lesson_div.append(lesson_notes_p);
+        
     })
     .catch((error) => {
         console.log('Error:', error);
     });
 }
-*/

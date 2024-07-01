@@ -27,7 +27,7 @@ class Lesson(models.Model):
     # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
     # Error - TypeError at /saved Object of type ImageFieldFile/FileFieldFile/User is not JSON serializable django
     # https://stackoverflow.com/questions/7497138/how-do-i-serialize-an-imagefield-in-django
-    # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable ?
+    # https://stackoverflow.com/questions/44429377/class-that-returns-json-python
     def serialize(self):
         return {
             "id": self.id,
@@ -59,7 +59,7 @@ class Resources(models.Model):
             # https://stackoverflow.com/questions/7497138/how-do-i-serialize-an-imagefield-in-django
             # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
             # https://github.com/encode/django-rest-framework/discussions/8024
-            "image": json.dumps(str(self.image)), # use self.image.path-to-image when I have it
-            "doc_upload": json.dumps(str(self.doc_upload)), # use self.doc_upload.path-to-doc when I have it
-            "user": json.dumps(str(self.user)), 
+            "image": json.dumps(str(self.image)),
+            "doc_upload": json.dumps(str(self.doc_upload)),
+            "author": json.dumps(str(self.author)), 
         }

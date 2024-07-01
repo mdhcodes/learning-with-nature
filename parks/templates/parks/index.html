@@ -2,10 +2,8 @@
 
 {% load static %}
 
-{% comment %} {% load env_extras %} {% endcomment %}
-
 {% block body %}
-    {% comment %} <input id="NP_API_KEY" value="{% get_env_var 'NP_API_KEY' %}" type="hidden" /> {% endcomment %}
+    <!-- If a user tries to save a lesson and they're not logged in, the value of user will be 'AnonymousUser' and they will be prompted to sign in if they want to sava_a_lesson. -->
     <input id="current-user" value="{{ user }}" type="hidden" />
 
     {% if message %}
@@ -17,14 +15,13 @@
 
     <p>{{ task }}</p>
 
-    {% comment %} Dropdown to find a park by State OR by Topic {% endcomment %}
-
     <a class="find-park navbar-brand" href="{% url 'index' %}">Find Parks by State</a>
     
     <div id="search-by-state" class="container">
-
+        
+        {% comment %} Dropdown to find a park by State {% endcomment %}
         <!-- https://gist.github.com/RichLogan/9903043 -->
-        <!-- Select the option/state and the event is triggered. -->
+        <!-- Select the option/state and the event is triggered. -->        
             <select id="select-state" class="form-select" name="state" aria-label="Select a State">
                 <option value="" selected>Select a State</option>
                 <option value="AK">Alaska</option>
@@ -95,20 +92,23 @@
     </div>
 
     <div id="edit-lesson">
+        
+        <h3>Edit Lesson</h3>
+
+        <div id="stored-lesson-data"></div>
+
         {% comment %} 
         Requirements for uploading images and files.
         https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files-to-a-form 
         <form enctype="multipart/form-data" method="post" action="/foo/"> 
         {% endcomment %}
-        <h3>Edit Lesson</h3>
-
-        <div id="stored-lesson-data"></div>
-
-        {% comment %} <form enctype="multipart/form-data" action="{% url 'edit' lesson_id %}" method="post"> {% endcomment %}
         <form id="edit-form" enctype="multipart/form-data" action="{% url 'edit' %}" method="post">           
             {% csrf_token %}
             {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph.  {% endcomment %}
         </form>        
+    </div>
+
+    <div id="edited-lesson">    
     </div>
 
 {% endblock body %}

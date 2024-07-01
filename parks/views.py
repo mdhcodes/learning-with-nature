@@ -8,6 +8,8 @@ from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 
+from itertools import chain
+
 from .models import User, Lesson, Resources
 
 from learning.settings import NP_API_KEY
@@ -17,50 +19,33 @@ from .forms import CreateResourcesForm
 # Create your views here.
 
 def index(request): 
-
-    # form = CreateResourcesForm() # Unable to hide the form - ImageField object has no attribute is_hidden. 
       
     # context = {
-        # 'form': form
     # } 
     return render(request, 'parks/index.html') #, context)
 
 
-# def edit(request, lesson_id):
 def edit(request):
-
-    # print('Lesson ID:', lesson_id)
-
 
     # FormData
     # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
     if request.method == 'POST':
 
         print('Edit Request:', request)
-        print('Edit Request.FILES:', request.FILES)
+        # print('Edit Request.FILES:', request.FILES)
 
         id = request.POST.get('id')
-        print('Edit ID:', id)
+        # print('Edit ID:', id)
 
+        # Capture the edit form data values.
         notes = request.POST.get('notes')
-        print('Edit Notes:', notes)
+        # print('Edit Notes:', notes)
 
-        """
-        Errors persist:
-        python/django errors
-        # django.utils.datastructures.MultiValueDictKeyError: 'image'
-        """
+        image = request.FILES['image'] 
+        # print('Edit Image:', image)
 
-        image = request.FILES['image'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'image'
-        print('Edit Image:', image)
-
-        doc_upload = request.FILES['doc-file'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'doc-file'
-        # doc_upload = request.FILES['doc_upload'] # Error: django.utils.datastructures.MultiValueDictKeyError: 'doc_upload'
-        print('Edit Doc Upload:', doc_upload)
-
-        # edit_form_data = CreateResourcesForm(request.POST or None, request.FILES or None)
-        # edit_form_data = CreateResourcesForm(request.POST, request.FILES)
-        # print('Edit Form Data:', edit_form_data)
+        doc_upload = request.FILES['doc-file']
+        # print('Edit Doc Upload:', doc_upload)
 
         # Get user from the POST request.
         user_name = request.user
@@ -82,60 +67,6 @@ def edit(request):
 
         resources.save()
 
-        # Capture the edit_form_data values.
-        # notes = edit_form_data['notes'] # Returns HTML element
-        # notes = edit_form_data['notes'].value() # Returns None - empty value
-        # print('Notes:', notes)
-        
-        # edit_img_data = request.FILES['image'] # KeyError: 'image' - django.utils.datastructures.MultiValueDictKeyError: 'image'
-        # edit_img_data = edit_form_data['image'].value() # Returns None - empty value
-        # print('Image File:', edit_img_data)
-
-        # edit_file_data = request.FILES['doc_upload']
-        # edit_file_data = edit_form_data['doc-file'].value() # Returns None - empty value
-        # print('Doc File:', edit_file_data)
-
-        """
-        # JSON.stringify
-        # Get lesson form data
-        data = json.loads(request.body) # RawPostDataException at /edit - You cannot access body after reading from request's data stream - Stopped when I didn't include edit_form_data = CreateResourcesForm(request.POST, request.FILES)
-        print('Data:', data)
-        # id: lesson_id,
-        # notes: edit_notes,
-        # image: edit_image,
-        # doc_upload: edit_doc_file
-
-        id = data.get('id')
-        print('ID Line 65: ', id)
-        lesson_id = Lesson.objects.get(pk=id)
-
-        notes = data['notes']
-        print('Notes Line 68:', notes)
-
-        # image = data['image'] # Returns KeyError - Possibly because this is a file object not a string
-        # image = data.get('image') # No KeyError
-        # print('Image Line 71:', image)
-
-        # doc_upload = data['doc_upload'] # Returns KeyError
-        # doc_upload = data.get('doc_upload') # No KeyError
-        # print('Doc Upload Line 74:', doc_upload)
-
-        
-        resources = Resources()
-        resources.lesson = lesson_id
-        resources.notes = notes
-        resources.author = author
-
-        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
-        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
-            resources.image = image
-        
-        if len(doc_upload) != 0:
-            resources.doc_upload = doc_upload
-
-        resources.save()
-        """
-
         return JsonResponse({'message': 'Lesson updated successfully.'})
     
     else:
@@ -144,7 +75,7 @@ def edit(request):
 
 def get_edit_form(request): 
 
-    form = CreateResourcesForm() # Unable to hide the form - ImageField object has no attribute is_hidden. 
+    form = CreateResourcesForm() 
       
     context = {
         'form': form
@@ -154,25 +85,67 @@ def get_edit_form(request):
 
 def get_lesson_to_edit(request, lesson_id):
 
-    print('Request', request)
-    print('Lesson ID:', lesson_id)
-
-    # lesson_data = CreateResourcesForm(request.POST, request.FILES)
-    # print('Lesson Data:', lesson_data)
-
-    # current_username = request.user
-    current_user_id = request.user.id
-    print('Current User:', current_user_id)
+    # print('Request', request)
+    # print('Lesson ID:', lesson_id)
 
     # Get the saved lesson data for the lesson with the given lesson_id for the specified user.
     lesson = Lesson.objects.get(pk=lesson_id)     
-    print('Lesson:', lesson)
-
-    # TypeError at /saved - In order to allow non-dict objects to be serialized set the safe parameter to False.
-    # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
+    print('Lesson (to Edit):', lesson)
         
     # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
     return JsonResponse(lesson.serialize())
+
+
+def lesson(request, lesson_id):
+
+    print('Lesson ID', lesson_id)
+
+    current_user_id = request.user.id
+    # print('Current User:', current_user_id)
+
+    # Get data from both tables:
+    # Lesson - lesson_id
+    lesson = Lesson.objects.get(pk=lesson_id)
+    # lesson = Lesson.objects.filter(pk=lesson_id)
+    print('Edited Lesson to Display:', lesson) # Returns a Lesson object
+    # Resources - author and lesson_id
+
+    # https://stackoverflow.com/questions/15874233/how-to-output-django-queryset-as-json
+    resources = Resources.objects.filter(lesson_id=lesson_id, author=current_user_id).values() # Returns a QuerySet
+    # resources = Resources.objects.filter(lesson_id=lesson_id, author=current_user_id) # Returns a QuerySet [<Resources: Resources object (6)>]
+    print('Edited Lesson Resources to Display:', resources) 
+
+    # Check that resources QuerySet is not empty
+    # https://stackoverflow.com/questions/1387727/checking-for-empty-queryset-in-django
+    if not resources: 
+
+        return JsonResponse(lesson.serialize())
+    
+    else:
+
+        for resource in resources: # Look inside the QuerySet list to access its ID
+            print('Resource:', resource)
+            print('Resource ID:', resource['id']) # ********
+
+            resource_id = resource['id']
+
+            # After getting the ID, access the object. However, this object is not JSON serializable
+            # lesson_resources = Resources.objects.get(pk=resource_id)
+
+            # After getting the ID, access the notes, image, and doc_upload field values.
+            # https://docs.djangoproject.com/en/5.0/ref/models/querysets/#values - "... specify field names to which the SELECT should be limited."
+            lesson_resources = Resources.objects.filter(pk=resource_id).values('notes', 'image', 'doc_upload')
+            
+            # lesson_resources = Resources.objects.filter(pk=resource_id)
+            print('Lesson Resources:', lesson_resources)         
+    
+        data_chain = list(chain([lesson.serialize()], lesson_resources)) # WORKS - returns lesson as a dictionary with key value pairs
+        # data_chain = list(chain(lesson.serialize(), lesson_resources)) # DOES NOT WORK - returns lesson with keys only
+        print('Data Chain:', data_chain)
+
+        # In order to allow non-dict objects to be serialized set the safe parameter to False.
+        # https://docs.djangoproject.com/en/5.0/ref/request-response/#serializing-non-dictionary-objects
+        return JsonResponse(data_chain, safe=False)
 
 
 # https://docs.djangoproject.com/en/5.0/topics/auth/default/#how-to-log-a-user-in
@@ -206,8 +179,8 @@ def logout_user(request):
 
 def parks(request, state):
 
-    print('Request:', request)
-    print('State:', state)
+    # print('Request:', request)
+    # print('State:', state)
 
     # https://reintech.io/blog/connecting-to-external-api-in-django
     url = f'https://developer.nps.gov/api/v1/parks?stateCode={state}&api_key={NP_API_KEY}'
@@ -219,8 +192,8 @@ def parks(request, state):
 
 def park_learning(request, park_code):
 
-    print('Request:', request)
-    print('Park Code:', park_code)
+    # print('Request:', request)
+    # print('Park Code:', park_code)
     
     url = f'https://developer.nps.gov/api/v1/parks?parkCode={park_code}&api_key={NP_API_KEY}'
     response = requests.get(url)
@@ -232,7 +205,7 @@ def park_learning(request, park_code):
 
 def all_park_lessons(request):
 
-    print('Request:', request)
+    # print('Request:', request)
     
     url = f'https://developer.nps.gov/api/v1/lessonplans?limit=1270&api_key={NP_API_KEY}' # total number of lessons: 1270
     response = requests.get(url)
@@ -244,8 +217,8 @@ def all_park_lessons(request):
 
 def park_lessons(request, park_code): #, lesson_id): could have used lesson_id here but identified lesson in Javascript.
 
-    print('Request:', request)
-    print('Park Code for Lessons:', park_code)
+    # print('Request:', request)
+    # print('Park Code for Lessons:', park_code)
     # print('Park Lesson ID:', lesson_id)
 
     url= f'https://developer.nps.gov/api/v1/lessonplans?parkCode={park_code}&api_key={NP_API_KEY}'
@@ -365,14 +338,14 @@ def saved(request):
         # Get all saved lessons for the specified user.
         lessons = Lesson.objects.filter(user_id=current_user_id) # Returns QuerySet of populated Django models - python objects that contain fields and functions.     
         # lessons = Lesson.objects.filter(user_id=current_user_id).values() # Returns QuerySet of dictionaries for each row in the database. (Performance is very efficient) These dictionaries can then be placed in a list [] or calling the list() constructor - dict object has no attribute serialize
-        print('Lessons:', lessons)
+        # print('Lessons:', lessons)
 
         if lessons == None:
             return JsonResponse({'message': 'There are no saved lessons.'})
         else:
 
             # TypeError at /saved - In order to allow non-dict objects to be serialized set the safe parameter to False.
-            # https://stackoverflow.com/questions/16790375/django-object-is-not-json-serializable
+            # https://docs.djangoproject.com/en/5.0/ref/request-response/#serializing-non-dictionary-objects
             
             # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
             return JsonResponse([lesson.serialize() for lesson in lessons], safe=False)
