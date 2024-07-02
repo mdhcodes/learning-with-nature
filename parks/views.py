@@ -241,13 +241,6 @@ def register(request):
             }
             return render(request, 'parks/register.html', context)
         
-        # Ensure email submitted
-        if not request.POST['email']:
-            context = {
-                'message' : 'Please provide email'
-            }
-            return render(request, 'parks/register.html', context)
-
         # Ensure password submitted
         if not request.POST['password']:
             context = {
@@ -263,12 +256,16 @@ def register(request):
             return render(request, 'parks/register.html', context)        
 
         username = request.POST['username']
-        email = request.POST['email']
         password = request.POST['password']
 
         # Attempt to create new user
         try:
-            user = User.objects.create_user(username, email, password)
+            # Don't require an email to register. 
+            # https://stackoverflow.com/questions/48448563/my-password-is-stored-inside-the-email-field-in-django-admin
+            # The second argument of the create_user method is email. 
+            # Fix - Change code to pass password as a keyword argument. 
+            # user = User.objects.create_user(username, email, password)
+            user = User.objects.create_user(username, password=password)
             user.save()
         except IntegrityError:
             context = {
@@ -293,35 +290,50 @@ def save_park_lesson(request):
         # print('User in database:', park_user)
 
         if username == park_user:
-            # !!!!!!CHECK IF THIS LESSON IS ALREADY SAVED!!!!!!!
 
             # Get data/lesson components from JS POST request.
             data = json.loads(request.body)
             # print('Data:', data) # Python dictionary - access values using [] or get() method.
+            
+            np_lesson_id = data['id']
+            print('NP Lesson_ID:', np_lesson_id)
 
-            url = data['url']
-            # url = data.get('url')
-            title = data.get('title')
-            parks = data.get('parks')
-            questionObjective = data.get('questionObjective')
-            gradeLevel = data.get('gradeLevel')
-            commonCore = data.get('commonCore')
-            subject = data.get('subject')
-            duration = data.get('duration')
-            user = park_user
+            # Check if this lesson is already saved
+            # if object has npid == np_lesson_id and user_id == request.user 
 
-            lesson = Lesson(
-                url=url,
-                title=title,
-                parks=parks,
-                questionObjective=questionObjective,
-                gradeLevel=gradeLevel,
-                commonCore=commonCore,
-                subject=subject,
-                duration=duration,
-                user=user
-            )
-            lesson.save()
+            lesson_exists = Lesson.objects.filter(npid=np_lesson_id).filter(user_id=request.user)
+            print('Lesson Exists:', lesson_exists)
+            
+            if not lesson_exists:
+
+                url = data['url']
+                # url = data.get('url')
+                title = data.get('title')
+                parks = data.get('parks')
+                questionObjective = data.get('questionObjective')
+                gradeLevel = data.get('gradeLevel')
+                commonCore = data.get('commonCore')
+                subject = data.get('subject')
+                duration = data.get('duration')
+                user = park_user
+                npid = data.get('id')
+
+                lesson = Lesson(
+                    url=url,
+                    title=title,
+                    parks=parks,
+                    questionObjective=questionObjective,
+                    gradeLevel=gradeLevel,
+                    commonCore=commonCore,
+                    subject=subject,
+                    duration=duration,
+                    user=user,
+                    npid=npid
+                )
+                lesson.save()
+
+            else:
+                return JsonResponse({'message': 'This lesson is already saved.'})
 
         return JsonResponse({'message': 'Lesson saved successfully.'})
     

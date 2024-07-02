@@ -12,6 +12,7 @@ class User(AbstractUser):
 
 # When a user saves a lesson, a model is created from the json data and stored in the Lesson table.
 class Lesson(models.Model):
+    npid = models.CharField(max_length=100)
     url = models.URLField()
     title = models.TextField()
     parks = models.JSONField() # The parkCode is stored in the parks list. Link to these parks in the lesson plan. https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}
@@ -30,6 +31,7 @@ class Lesson(models.Model):
     # https://stackoverflow.com/questions/44429377/class-that-returns-json-python
     def serialize(self):
         return {
+            "npid": self.npid,
             "id": self.id,
             "url": self.url,
             "title": self.title,
