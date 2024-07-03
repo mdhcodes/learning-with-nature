@@ -7,11 +7,12 @@
     <input id="current-user" value="{{ user }}" type="hidden" />
 
     {% if message %}
+        <!-- Message from views.py passed to render via context. -->
         <div class="alert alert-success" role="alert">{{ message }}</div>
     {% endif %}
 
-    <div id="login-message"></div>
-    <div id="saved-message"></div>
+    <!-- Message from views.py passed to JsonResponse and dynamically populated via JavaScript. -->
+    <div id="message"></div>
 
     <p>{{ task }}</p>
 

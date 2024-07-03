@@ -18,11 +18,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const saved = document.querySelector('#saved');
     if (saved !== null) {
         saved.addEventListener('click', () => {
+
+            // Hide message if there is one to clear/reset innerHTML and styles.
+            document.getElementById('message').innerHTML = '';
+            document.getElementById('message').setAttribute('class', '');
+            document.getElementById('message').setAttribute('role', '');
+            document.getElementById('message').style.display = 'none';
+
+            // Display cleared/reset message div.
+            document.getElementById('message').style.display = 'block';
+
             // If a stored-lesson-data and the edit-form already exist and the user selects a new lesson to edit, the user should not see two lessons to edit.
             // Check if edit_form has a CSS rule display:block. If so remove the element.
             // https://stackoverflow.com/questions/4866229/check-element-css-display-with-javascript
-            const edit_lesson = document.querySelector('#edit-lesson');
-            console.log(edit_lesson);
+            // const edit_lesson = document.querySelector('#edit-lesson');
+            // console.log(edit_lesson);
             
             // if (edit_lesson.style.display === 'block') {
                 // Removing a div clears the page and does not display new results.
@@ -423,7 +433,7 @@ const save_a_lesson = (park_code, lesson_id) => {
                 if (current_user === 'AnonymousUser') {
                     // If user is not authenticated, send a message to sign in.
                     // Create alert with message()
-                    const login_message = document.getElementById('login-message');
+                    const login_message = document.getElementById('message');
                     login_message.innerHTML = 'Please sign in to save a lesson';
                     login_message.setAttribute('class', 'alert alert-warning');
                     login_message.setAttribute('role', 'alert');
@@ -453,16 +463,13 @@ const save_a_lesson = (park_code, lesson_id) => {
                     .then(response => response.json())
                     .then(result => {
                         console.log('Result:', result);
-                        // Once the data has been saved, send a message to the user.
-                        const saved_message = document.getElementById('saved-message');
-                        saved_message.innerHTML = 'Please sign in to save a lesson';
+                        // Once the data has been saved, send a message to the user.                        
+                        const saved_message = document.getElementById('message');
                         saved_message.setAttribute('class', 'alert alert-success');
                         saved_message.setAttribute('role', 'alert');
-                        saved_message.innerHTML = 'Lesson saved successfully';
+                        saved_message.innerHTML = result.message; // 'Lesson saved successfully';
                         // Go to the top of the page automatically.
                         document.body.scrollTop = document.documentElement.scrollTop = 0;
-                        // Show to saved lessons
-                        get_saved_lessons();
                     })
                     .catch((error) => {
                         console.log('Error:', error);
@@ -475,8 +482,15 @@ const save_a_lesson = (park_code, lesson_id) => {
 
 
 const get_saved_lessons = () => {
-    // Hide saved-message if there is one.
-    document.getElementById('saved-message').style.display = 'none';
+    // Hide message if there is one to clear/reset innerHTML and styles.
+    document.getElementById('message').innerHTML = '';
+    document.getElementById('message').setAttribute('class', '');
+    document.getElementById('message').setAttribute('role', '');
+    document.getElementById('message').style.display = 'none';
+
+    // Display cleared/reset message div.
+    document.getElementById('message').style.display = 'block';
+
 
     // Make a GET request to /saved route to request all specified user's saved lessons.
     fetch('saved')
@@ -512,7 +526,7 @@ const get_saved_lessons = () => {
             lesson_title_link = document.createElement('a');
             lesson_title_link.innerHTML = result[lesson].title;
             lesson_title_link.setAttribute('href', '#'); 
-            lesson_title_link.addEventListener('click', get_lesson.bind(null, lesson_id));
+            lesson_title_link.addEventListener('click', edited_lesson.bind(null, lesson_id));
             lesson_title.append(lesson_title_link);
             lesson_div.append(lesson_title);
             const lesson_question = document.createElement('p');
@@ -714,6 +728,14 @@ const save_edits = (lesson_id, edit_notes, formData) => {
     .then(response => response.json())
     .then(result => {
         console.log('Result After save_edits:', result);
+        const edited_message = document.getElementById('message');
+        edited_message.setAttribute('class', 'alert alert-success');
+        edited_message.setAttribute('role', 'alert');
+        edited_message.innerHTML = result.message;
+        // Go to the top of the page automatically.
+        // https://stackoverflow.com/questions/4210798/how-to-scroll-to-top-of-page-with-javascript-jquery
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+
         // Show the edited lesson with the updated information.
         edited_lesson(lesson_id);
     })
