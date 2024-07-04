@@ -532,14 +532,25 @@ const get_saved_lessons = () => {
             const lesson_question = document.createElement('p');
             lesson_question.innerHTML = `Lesson Objective: ${result[lesson].questionObjective}`;
             lesson_div.append(lesson_question);
-            const edit_button = document.createElement('button');            
-            edit_button.innerHTML = 'Edit';
-            edit_button.setAttribute('class', 'edit');
-            lesson_div.append(edit_button);
+
+            const update_button = document.createElement('button');
+            const edit_button = document.createElement('button');
+
+            // If saved lesson hasResources == True
+            if (result[lesson].hasResources) {                          
+                update_button.innerHTML = 'Update';
+                update_button.setAttribute('class', 'update');
+                lesson_div.append(update_button);               
+            } else {                              
+                edit_button.innerHTML = 'Edit';
+                edit_button.setAttribute('class', 'edit');
+                lesson_div.append(edit_button);
+            }
 
             saved_lessons.append(lesson_div);
 
             edit_button.addEventListener('click', get_lesson.bind(null, lesson_id));
+            update_button.addEventListener('click', get_lesson_to_update.bind(null, lesson_id));
         }
     });
 }
@@ -608,11 +619,158 @@ const edit_lesson = (lesson_id) => {
         const edit_lesson = document.getElementById('edit-lesson');
         edit_lesson.style.display = 'block';
 
+        /*
         // Display the form.
         fetch('get_edit_form')
         .then(response => response)
         .then((result) => {
-            console.log('Result:', result);
+            console.log('Edit Form Result:', result);
+        });
+        */
+        
+        const edit_form = document.querySelector('#edit-form');
+    
+        
+        const notes_label = document.createElement('label');
+        notes_label.setAttribute('for', 'notes');
+        notes_label.setAttribute('class', 'form-label');
+        notes_label.innerHTML = 'Lesson Notes';
+        edit_form.append(notes_label);
+
+        const notes = document.createElement('textarea');
+        notes.setAttribute('id', 'notes');
+        notes.setAttribute('class', 'form-control');
+        notes.setAttribute('placeholder', 'Add Lesson Notes Here');
+        edit_form.append(notes);
+
+        const image_label = document.createElement('label');
+        image_label.setAttribute('for', 'image-upload');
+        image_label.setAttribute('class', 'form-label');
+        image_label.innerHTML = 'Upload an Image';
+        edit_form.append(image_label);
+
+        const image = document.createElement('input');
+        image.setAttribute('type', 'file');
+        image.setAttribute('id', 'image-upload');
+        image.setAttribute('name', 'image');
+        image.setAttribute('multiple', '');
+        image.setAttribute('accept', '.png,.jpeg,.jpg,.bmp');
+        edit_form.append(image);
+
+        const doc_file_label = document.createElement('label');
+        doc_file_label.setAttribute('for', 'doc-file');
+        doc_file_label.setAttribute('class', 'form-label');
+        doc_file_label.innerHTML = 'Upload a Document';
+        edit_form.append(doc_file_label);
+
+        const doc_file = document.createElement('input');
+        doc_file.setAttribute('type', 'file');
+        doc_file.setAttribute('id', 'doc-file');
+        doc_file.setAttribute('name', 'doc-file');
+        doc_file.setAttribute('multiple', '');
+        doc_file.setAttribute('accept', '.doc,.docx,.pdf');
+        edit_form.append(doc_file);
+
+        const save_button = document.createElement('button');
+        save_button.setAttribute('type', 'submit');
+        save_button.setAttribute('id', 'save-edit');
+        save_button.setAttribute('class', 'btn btn-success');
+        save_button.innerHTML = 'Save';
+        edit_form.append(save_button); 
+                 
+
+        // Add event listener to Save button.
+        save_button.addEventListener('click', save_edits.bind(null, lesson_id));
+
+        document.getElementById('save-edit').addEventListener('click', (e) => {
+            e.preventDefault(); // ****** Prevent form submission / page reload ******
+
+            // Store user input/edit form field values in the following variables.
+            const edit_notes = document.querySelector('#notes').value;
+
+            // Get form element
+            // https://dev.to/tochimclaren/django-ajax-form-with-fetch-api-lob
+            // https://stackoverflow.com/questions/166221/how-can-i-upload-files-asynchronously-with-jquery/8758614#8758614
+            // https://stackoverflow.com/questions/73367729/how-to-upload-an-image-to-django-backend-using-react-and-fetch-it
+            // https://stackoverflow.com/questions/46640024/how-do-i-post-form-data-with-fetch-api/46642899#46642899
+            // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+
+            formData = new FormData(edit_form);
+            console.log('Edit Form Data:', formData);
+            
+            save_edits(lesson_id, edit_notes, formData);
+        });
+}
+
+
+
+const get_lesson_to_update = (lesson_id) => {
+    
+    // Make a GET request to /get_lesson_to_edit route to request the lesson specified by the user.
+    fetch(`get_lesson_to_edit/${lesson_id}`)
+    .then(response => response.json())
+    .then(result => {
+        console.log('Result of get_lesson_to_edit:', result)
+
+        // Display results for the user in the stored-lesson-data div.
+        const stored_lesson_data = document.getElementById('stored-lesson-data');
+        stored_lesson_data.style.display = 'block';
+
+        // Hide all other divs
+        document.getElementById('saved-lessons').style.display = 'none';
+       
+        const title = document.createElement('p');
+        title.innerHTML = `Title: ${result.title} : ${result.id}`;
+        stored_lesson_data.append(title);
+        const url = document.createElement('p');
+        url.innerHTML = `Link: ${result.url}`;
+        stored_lesson_data.append(url);
+        const objective = document.createElement('p');
+        objective.innerHTML = `Objective: ${result.objective}`;
+        stored_lesson_data.append(objective);
+        const grade = document.createElement('p');
+        grade.innerHTML = `Grade Level: ${result.grade}`;
+        stored_lesson_data.append(grade);
+        const standards = document.createElement('ul');
+        for (i in result.commonCore) {
+            const standards_li = document.createElement('li');
+            standards_li.innerHTML = `Standards: ${result.commonCore[i]}`;
+            standards.append(standards_li); 
+            stored_lesson_data.append(standards);           
+        }
+
+        const subject = document.createElement('ul');
+        for (i in result.subject) {
+            const subject_li = document.createElement('li');
+            subject_li.innerHTML = `Subject: ${result.subject[i]}`;
+            subject.append(subject_li); 
+            stored_lesson_data.append(subject);           
+        }
+
+        const duration = document.createElement('p');
+        duration.innerHTML = `Duration: ${result.duration}`;
+        stored_lesson_data.append(duration); 
+
+        update_lesson(lesson_id);
+       
+    });
+}
+
+
+// Update a lesson that has been edited.
+const update_lesson = (lesson_id) => {
+
+    console.log('Update_Lesson_ID:', lesson_id);
+
+        // Display form to edit lesson plan in the edit-lesson div.
+        const edit_lesson = document.getElementById('edit-lesson');
+        edit_lesson.style.display = 'block';
+
+        // Display the update form.
+        fetch(`get_update_form/${lesson_id}`)
+        .then(response => response)
+        .then((result) => {
+            console.log('Get Update Form Result:', result);
         });
         
         const edit_form = document.querySelector('#edit-form');
@@ -684,7 +842,7 @@ const edit_lesson = (lesson_id) => {
             console.log('Edit Form Data:', formData);
             
             save_edits(lesson_id, edit_notes, formData);
-        });
+        });  
 }
 
 
@@ -762,25 +920,105 @@ const edited_lesson = (lesson_id) => {
     fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
-        console.log('Result', result);
+        console.log('Fetch Lesson Result', result);
+        // console.log('Fetch Lesson Result Length:', result.length)
 
         const edited_lesson_div = document.querySelector('#edited-lesson');
-
+        
         const heading = document.createElement('h3');
         heading.innerHTML = `Edited Lesson ID: ${lesson_id}`
-        edited_lesson_div.append(heading);        
+        edited_lesson_div.append(heading);   
 
-        const lesson_url_p = document.createElement('p');
-        lesson_url_p.innerHTML = `Lesson URL: ${result[0].url}`;
-        edited_lesson_div.append(lesson_url_p);
+        // If the lesson has resources, result is an array and result.length will be 2. 
+        // If the lesson has no resources, result is an object and result.length is undefined.
+        if (result.length == undefined) {     
+    
+            const lesson_title_p = document.createElement('p');
+            lesson_title_p.innerHTML = `Title: ${result.title}`;
+            edited_lesson_div.append(lesson_title_p);  
+            
+            const lesson_url_p = document.createElement('p');
+            lesson_url_p.innerHTML = `URL: ${result.url}`;
+            edited_lesson_div.append(lesson_url_p);
 
-        const lesson_title_p = document.createElement('p');
-        lesson_title_p.innerHTML = `Lesson Title: ${result[0].title}`;
-        edited_lesson_div.append(lesson_title_p);
+            const lesson_objective_p = document.createElement('p');
+            lesson_objective_p.innerHTML = `Objective: ${result.objective}`;
+            edited_lesson_div.append(lesson_objective_p);
 
-        const lesson_notes_p = document.createElement('p');
-        lesson_notes_p.innerHTML = `Lesson Notes: ${result[1].notes}`;
-        edited_lesson_div.append(lesson_notes_p);
+            const lesson_grade_p = document.createElement('p');
+            lesson_grade_p.innerHTML = `Grade Level: ${result.grade}`;
+            edited_lesson_div.append(lesson_grade_p);
+
+            const lesson_standards_ul = document.createElement('ul');
+            for (i in result.commonCore) {
+                const lesson_standards_li = document.createElement('li');
+                lesson_standards_li.innerHTML = `Standards: ${result.commonCore[i]}`;
+                lesson_standards_ul.append(lesson_standards_li); 
+                edited_lesson_div.append(lesson_standards_ul);           
+            }
+
+            const lesson_subject_ul = document.createElement('ul');
+            for (i in result.subject) {
+                const lesson_subject_li = document.createElement('li');
+                lesson_subject_li.innerHTML = `Subject: ${result.subject[i]}`;
+                lesson_subject_ul.append(lesson_subject_li); 
+                edited_lesson_div.append(lesson_subject_ul);           
+            }
+
+            const lesson_duration_p = document.createElement('p');
+            lesson_duration_p.innerHTML = `Duration: ${result.duration}`;
+            edited_lesson_div.append(lesson_duration_p); 
+
+        } else {
+
+            const lesson_title_p = document.createElement('p');
+            lesson_title_p.innerHTML = `Title: ${result[0].title}`;
+            edited_lesson_div.append(lesson_title_p);
+
+            const lesson_url_p = document.createElement('p');
+            lesson_url_p.innerHTML = `URL: ${result[0].url}`;
+            edited_lesson_div.append(lesson_url_p);
+
+            const lesson_objective_p = document.createElement('p');
+            lesson_objective_p.innerHTML = `Objective: ${result[0].objective}`;
+            edited_lesson_div.append(lesson_objective_p);
+
+            const lesson_grade_p = document.createElement('p');
+            lesson_grade_p.innerHTML = `Grade Level: ${result[0].grade}`;
+            edited_lesson_div.append(lesson_grade_p);
+
+            const lesson_standards_ul = document.createElement('ul');
+            for (i in result[0].commonCore) {
+                const lesson_standards_li = document.createElement('li');
+                lesson_standards_li.innerHTML = `Standards: ${result[0].commonCore[i]}`;
+                lesson_standards_ul.append(lesson_standards_li); 
+                edited_lesson_div.append(lesson_standards_ul);           
+            }
+
+            const lesson_subject_ul = document.createElement('ul');
+            for (i in result[0].subject) {
+                const lesson_subject_li = document.createElement('li');
+                lesson_subject_li.innerHTML = `Subject: ${result[0].subject[i]}`;
+                lesson_subject_ul.append(lesson_subject_li); 
+                edited_lesson_div.append(lesson_subject_ul);           
+            }
+
+            const lesson_duration_p = document.createElement('p');
+            lesson_duration_p.innerHTML = `Duration: ${result[0].duration}`;
+            edited_lesson_div.append(lesson_duration_p);            
+    
+            const lesson_notes_p = document.createElement('p');
+            lesson_notes_p.innerHTML = `Notes: ${result[1].notes}`;
+            edited_lesson_div.append(lesson_notes_p);
+
+            const lesson_image_p = document.createElement('p');
+            lesson_image_p.innerHTML = `Image: ${result[1].image}`;
+            edited_lesson_div.append(lesson_image_p);
+
+            const lesson_doc_p = document.createElement('p');
+            lesson_doc_p.innerHTML = `Document: ${result[1].doc_upload}`;
+            edited_lesson_div.append(lesson_doc_p);
+        }
         
     })
     .catch((error) => {
