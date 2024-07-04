@@ -51,7 +51,15 @@ def edit(request):
         user_name = request.user
         author = user_name
 
-        lesson_id = Lesson.objects.get(pk=id)
+        lesson_id = Lesson.objects.get(pk=id) # Lesson object (#)      
+        print('Lesson ID Line 55:', lesson_id)
+
+        lesson = Lesson.objects.get(pk=id) 
+        print('Lesson:', lesson)
+
+        # Set/Save Lesson object hasResources field as True.
+        lesson_id.hasResources = True
+        lesson_id.save()
 
         resources = Resources()
         resources.lesson = lesson_id
@@ -72,13 +80,23 @@ def edit(request):
     else:
         return JsonResponse({'error': 'POST request required.'}) 
 
-
+"""
 def get_edit_form(request): 
 
     form = CreateResourcesForm() 
       
     context = {
         'form': form
+    } 
+    return render(request, 'parks/index.html', context)
+"""
+
+def get_update_form(request, lesson_id):
+
+    resources = Resources.objects.filter()
+
+    context = {
+        
     } 
     return render(request, 'parks/index.html', context)
 
@@ -350,7 +368,7 @@ def saved(request):
         # Get all saved lessons for the specified user.
         lessons = Lesson.objects.filter(user_id=current_user_id) # Returns QuerySet of populated Django models - python objects that contain fields and functions.     
         # lessons = Lesson.objects.filter(user_id=current_user_id).values() # Returns QuerySet of dictionaries for each row in the database. (Performance is very efficient) These dictionaries can then be placed in a list [] or calling the list() constructor - dict object has no attribute serialize
-        # print('Lessons:', lessons)
+        print('Saved Lessons Line 361:', lessons)
 
         if lessons == None:
             return JsonResponse({'message': 'There are no saved lessons.'})

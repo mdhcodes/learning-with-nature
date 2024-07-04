@@ -21,8 +21,10 @@ class Lesson(models.Model):
     commonCore = models.JSONField()
     subject = models.JSONField()
     duration = models.TextField()
+    hasResources = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educator')
     date = models.DateTimeField(auto_now=False,  auto_now_add=True)
+
 
     # Return data as a JSON object.
     # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
@@ -41,6 +43,7 @@ class Lesson(models.Model):
             "commonCore": self.commonCore,
             "subject": self.subject,
             "duration": self.duration,
+            "hasResources": self.hasResources,
             "user": json.dumps(str(self.user)), 
             "date": self.date.strftime("%b %d %Y, %I:%M %p"),
         }
