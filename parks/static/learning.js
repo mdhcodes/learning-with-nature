@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Hide the state-parks, park-lessons, np-lessons, saved-lessons, and edit-lesson divs.
-    document.getElementById('state-parks').style.display = 'none';
-    document.getElementById('park-learning').style.display = 'none';
-    document.getElementById('np-lessons').style.display = 'none';
-    document.getElementById('saved-lessons').style.display = 'none';
-    document.getElementById('edit-lesson').style.display = 'none';
-    
+    // Hide the search-by-state, state-parks, park-lessons, np-lessons, saved-lessons, edit-lesson, and complete-lesson divs.
+    hide_all_divs();
+
+    document.querySelector('#search-by-state').style.display = 'block';
+
     const select_state = document.querySelector('#select-state');
 
     select_state.addEventListener('change', () => {
@@ -49,6 +47,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }       
 
 });
+
+
+const hide_all_divs = () => {
+    document.querySelector('#search-by-state').style.display = 'none';
+    document.querySelector('#state-parks').style.display = 'none';
+    document.querySelector('#edit-lesson').style.display = 'none';
+    document.querySelector('#park-learning').style.display = 'none';
+    document.querySelector('#np-lessons').style.display = 'none';
+    document.querySelector('#saved-lessons').style.display = 'none';
+    document.querySelector('#complete-lesson').style.display = 'none';   
+}
 
 
 const full_state_names = {
@@ -122,8 +131,9 @@ const get_parks = (state) => {
     .then(result => {
         // console.log('Result:', result)
 
-        // Hide park search-by-state div.
-        document.getElementById('search-by-state').style.display = 'none';
+        // Hide all divs to start
+        hide_all_divs();
+
         // Display state-parks div.
         document.getElementById('state-parks').style.display = 'block';
 
@@ -147,15 +157,14 @@ const get_parks = (state) => {
             park_designation.innerHTML = result.data[data].designation;
             div.append(park_designation);
             const park_name = document.createElement('h3');
-            // park_name.setAttribute('class', 'park-name');
             const park_link = document.createElement('a');
             park_link.innerHTML = result.data[data].name; 
             park_link.setAttribute('href', '#'); // The park_link event listener contains the endpoint to fetch when clicked.
             const park_code = result.data[data].parkCode;
-            const full_park_name = result.data[data].fullName;
+            
             // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind
             // bind() will pass the variable park_code without invoking the get_park function.
-            park_link.addEventListener('click', park_learning_links.bind(null, park_code, full_park_name)); // park_learning_links(park_code, full_park_name) immediately invokes the park_learning_links function.
+            park_link.addEventListener('click', get_park_lessons.bind(null, park_code)); // park_learning_links(park_code) immediately invokes the park_learning_links function.
             park_name.append(park_link);         
             div.append(park_name);
             park_city_state = document.createElement('p');
@@ -187,11 +196,8 @@ const get_parks = (state) => {
 }
 
 
-// const park_learning_links = (park_code, full_park_name) => {
 const park_learning_links = (park_code) => {
-    console.log('Park Code:', park_code);
-    // console.log('Full Park Name:', full_park_name);
-    
+    console.log('Park Code:', park_code);    
     
     // Send a GET request to the National Parks Service with the park_code value.
     fetch(`park_learning/${park_code}`)
@@ -202,12 +208,15 @@ const park_learning_links = (park_code) => {
         
         console.log('Park Learning Data:', result.data)  // Limit: 50
 
-        // Hide the state-parks div.
-        document.getElementById('state-parks').style.display = 'none';
+        // Hide all divs to start
+        hide_all_divs();
 
-        // Display the park-lessons div.
-        const park_learning = document.getElementById('park-learning');     
+        // Display the park-lessons div.     
+        const park_learning = document.querySelector('#park-learning');
         park_learning.style.display = 'block';
+
+        // Display complete lesson after park links are displayed
+        document.querySelector('#complete-lesson').style.display = 'block';
 
         const park_name = document.createElement('h3');
         park_name.innerHTML = result.data[0].fullName;
@@ -245,10 +254,6 @@ const park_learning_links = (park_code) => {
         trunks_link.innerHTML = 'Traveling Trunks';
         trunks.append(trunks_link);
         park_learning.append(trunks);
-        
-
-        // get_park_lessons(park_code, full_park_name);
-        get_park_lessons(park_code);
 
     })
     .catch(error => {
@@ -260,6 +265,8 @@ const park_learning_links = (park_code) => {
 // const get_park_lessons = (park_code, full_park_name) => {
 const get_park_lessons = (park_code) => {
 
+    park_learning_links(park_code);
+
     // Send a GET request to the National Parks Service for all lesson plans.
     fetch('all_park_lessons')
     .then(response => {
@@ -267,14 +274,16 @@ const get_park_lessons = (park_code) => {
     })
     .then(result => {
 
+        // Hide all divs to start
+        hide_all_divs();
+
         // Display the following divs
-        document.getElementById('park-learning').style.display = 'block';
-        document.getElementById('np-lessons').style.display = 'block';
+        document.querySelector('#park-learning').style.display = 'block';
+        document.querySelector('#np-lessons').style.display = 'block';
        
         const np_lessons = document.getElementById('np-lessons');
 
         const h3 = document.createElement('h3');
-        // h3.innerHTML = `${full_park_name} Lesson Plans`;
         h3.innerHTML = 'Lesson Plans';
         np_lessons.append(h3);
         const hr = document.createElement('hr');
@@ -503,18 +512,14 @@ const get_saved_lessons = () => {
     .then(response => response.json())
     .then(result => {
         console.log('Result:', result)
+        
+        // Hide all divs to start
+        hide_all_divs();
 
         // Display results for the user in the saved-lessons div.
         const saved_lessons = document.getElementById('saved-lessons');
         saved_lessons.style.display = 'block';
-
-        // Hide all other divs
-        document.getElementById('search-by-state').style.display = 'none';
-        document.getElementById('state-parks').style.display = 'none';
-        document.getElementById('park-learning').style.display = 'none';
-        document.getElementById('np-lessons').style.display = 'none';
-        document.getElementById('edit-lesson').style.display = 'none';
-
+        
         const saved_heading = document.createElement('h2');
         saved_heading.innerHTML = `Saved Lessons`;
         saved_lessons.append(saved_heading);
@@ -571,13 +576,14 @@ const get_lesson = (lesson_id) => {
     .then(result => {
         console.log('Result of get_lesson_to_edit:', result)
 
+        // Hide all divs to start
+        hide_all_divs();
+
         // Display results for the user in the stored-lesson-data div.
         const stored_lesson_data = document.getElementById('stored-lesson-data');
-        stored_lesson_data.style.display = 'block';
-
-        // Hide all other divs
-        document.getElementById('saved-lessons').style.display = 'none';
-       
+        // stored_lesson_data.style.display = 'block';
+        document.getElementById('edit-lesson').style.display = 'block';
+               
         const title = document.createElement('p');
         title.innerHTML = `Title: ${result.title} : ${result.id}`;
         stored_lesson_data.append(title);
@@ -620,6 +626,9 @@ const get_lesson = (lesson_id) => {
 const edit_lesson = (lesson_id) => {
 
     console.log('Edit_Lesson_ID:', lesson_id);
+
+        // Hide all divs to start
+        hide_all_divs();
 
         // Display form to edit lesson plan in the edit-lesson div.
         const edit_lesson = document.getElementById('edit-lesson');
@@ -719,16 +728,14 @@ const get_lesson_to_update = (lesson_id) => {
     .then(result => {
         console.log('Result of get_lesson_to_update:', result)
 
+        // Hide all divs to start
+        hide_all_divs();
+
+        // Display results for the user in the stored-lesson-data div nested inside the edit-lesson div.
         // Display form to edit lesson plan in the edit-lesson div.
-        const edit_lesson = document.getElementById('edit-lesson');
-        edit_lesson.style.display = 'block';
-
-        // Display results for the user in the stored-lesson-data div.
         const stored_lesson_data = document.getElementById('stored-lesson-data');
-        stored_lesson_data.style.display = 'block';
-
-        // Hide all other divs
-        document.getElementById('saved-lessons').style.display = 'none';
+        const edit_lesson = document.getElementById('edit-lesson');
+        edit_lesson.style.display = 'block'; 
        
         const update_heading_h3 = document.querySelector('#edit-lesson-h3');
         update_heading_h3.innerHTML = 'Update Lesson';
@@ -857,6 +864,9 @@ const get_lesson_to_update = (lesson_id) => {
 const update_lesson = (lesson_id) => {
 
     console.log('Update_Lesson_ID:', lesson_id);
+
+        // Hide all divs to start
+        hide_all_divs();
 
         // Display form to edit lesson plan in the edit-lesson div.
         const edit_lesson = document.getElementById('edit-lesson');
@@ -1000,17 +1010,12 @@ const save_edits = (lesson_id, edit_notes, formData) => {
 // Display the edited lesson
 const complete_lesson = (lesson_id) => {
 
+    // Hide all divs to start
+    hide_all_divs();
+
     // Display the following div
     document.querySelector('#complete-lesson').style.display = 'block';
-    
-    // Hide the following divs
-    document.querySelector('#state-parks').style.display = 'none';
-    document.querySelector('#park-learning').style.display = 'none';
-    document.querySelector('#np-lessons').style.display = 'none';
-    document.querySelector('#saved-lessons').style.display = 'none';
-    document.querySelector('#edit-lesson').style.display = 'none';
-    document.querySelector('#park-learning').style.display = 'none';
-    
+        
     // Send a POST request to the /edit route with the values captured above.
     fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
@@ -1024,17 +1029,15 @@ const complete_lesson = (lesson_id) => {
         heading.innerHTML = `Complete Lesson ID: ${lesson_id}`
         complete_lesson_div.append(heading);   
 
-        // console.log(result[0].title);
-
-        // Get Park Learning Links
-        // park = result[0].parks[0];
-        // console.log('Park:', park);
-        // park_learning_links(park_code);
-        // park_learning_links(park);
-
         // If the lesson has resources, result is an array and result.length will be 2. 
         // If the lesson has no resources, result is an object and result.length is undefined.
-        if (result.length == undefined) {     
+        if (result.length == undefined) { 
+
+            // Get Park Learning Links
+            park = result.parks[0];
+            console.log('Park:', park);
+            // park_learning_links(park_code);
+            park_learning_links(park);
     
             const lesson_title_p = document.createElement('p');
             lesson_title_p.innerHTML = `Title: ${result.title}`;
@@ -1076,6 +1079,12 @@ const complete_lesson = (lesson_id) => {
             complete_lesson_div.append(lesson_duration_p); 
 
         } else {
+
+            // Get Park Learning Links
+            park = result[0].parks[0];
+            console.log('Park:', park);
+            // park_learning_links(park_code);
+            park_learning_links(park);
 
             const lesson_title_p = document.createElement('p');
             lesson_title_p.innerHTML = `Title: ${result[0].title}`;
