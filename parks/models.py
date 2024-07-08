@@ -14,8 +14,9 @@ class User(AbstractUser):
 class Lesson(models.Model):
     npid = models.CharField(max_length=100)
     url = models.URLField()
-    title = models.TextField()
+    title = models.TextField()    
     parks = models.JSONField() # The parkCode is stored in the parks list. Link to these parks in the lesson plan. https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}
+    # park = models.CharField(max_length=10) # Only save the one park code that applies to the specified lesson plan.
     questionObjective = models.TextField()
     gradeLevel = models.TextField()
     commonCore = models.JSONField()

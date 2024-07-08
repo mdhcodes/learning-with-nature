@@ -94,7 +94,7 @@
 
     <div id="edit-lesson">
         
-        <h3>Edit Lesson</h3>
+        <h3 id="edit-lesson-h3">Edit Lesson</h3>
 
         <div id="stored-lesson-data"></div>
 
@@ -106,10 +106,10 @@
         <form id="edit-form" enctype="multipart/form-data" action="{% url 'edit' %}" method="post">           
             {% csrf_token %}
             {% comment %} {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph.  {% endcomment %}
-        </form>        
+        </form>            
     </div>
 
-    <div id="edited-lesson">    
+    <div id="complete-lesson">    
     </div>
 
 {% endblock body %}

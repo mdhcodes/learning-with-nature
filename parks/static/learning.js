@@ -187,9 +187,11 @@ const get_parks = (state) => {
 }
 
 
-const park_learning_links = (park_code, full_park_name) => {
+// const park_learning_links = (park_code, full_park_name) => {
+const park_learning_links = (park_code) => {
     console.log('Park Code:', park_code);
-    console.log('Full Park Name:', full_park_name);
+    // console.log('Full Park Name:', full_park_name);
+    
     
     // Send a GET request to the National Parks Service with the park_code value.
     fetch(`park_learning/${park_code}`)
@@ -243,8 +245,10 @@ const park_learning_links = (park_code, full_park_name) => {
         trunks_link.innerHTML = 'Traveling Trunks';
         trunks.append(trunks_link);
         park_learning.append(trunks);
+        
 
-        get_park_lessons(park_code, full_park_name);
+        // get_park_lessons(park_code, full_park_name);
+        get_park_lessons(park_code);
 
     })
     .catch(error => {
@@ -253,7 +257,8 @@ const park_learning_links = (park_code, full_park_name) => {
 }
 
 
-const get_park_lessons = (park_code, full_park_name) => {
+// const get_park_lessons = (park_code, full_park_name) => {
+const get_park_lessons = (park_code) => {
 
     // Send a GET request to the National Parks Service for all lesson plans.
     fetch('all_park_lessons')
@@ -269,7 +274,8 @@ const get_park_lessons = (park_code, full_park_name) => {
         const np_lessons = document.getElementById('np-lessons');
 
         const h3 = document.createElement('h3');
-        h3.innerHTML = `${full_park_name} Lesson Plans`;
+        // h3.innerHTML = `${full_park_name} Lesson Plans`;
+        h3.innerHTML = 'Lesson Plans';
         np_lessons.append(h3);
         const hr = document.createElement('hr');
         np_lessons.append(hr);
@@ -526,7 +532,7 @@ const get_saved_lessons = () => {
             lesson_title_link = document.createElement('a');
             lesson_title_link.innerHTML = result[lesson].title;
             lesson_title_link.setAttribute('href', '#'); 
-            lesson_title_link.addEventListener('click', edited_lesson.bind(null, lesson_id));
+            lesson_title_link.addEventListener('click', complete_lesson.bind(null, lesson_id));
             lesson_title.append(lesson_title_link);
             lesson_div.append(lesson_title);
             const lesson_question = document.createElement('p');
@@ -707,10 +713,15 @@ const edit_lesson = (lesson_id) => {
 const get_lesson_to_update = (lesson_id) => {
     
     // Make a GET request to /get_lesson_to_edit route to request the lesson specified by the user.
-    fetch(`get_lesson_to_edit/${lesson_id}`)
+    // fetch(`get_lesson_to_edit/${lesson_id}`)
+    fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
-        console.log('Result of get_lesson_to_edit:', result)
+        console.log('Result of get_lesson_to_update:', result)
+
+        // Display form to edit lesson plan in the edit-lesson div.
+        const edit_lesson = document.getElementById('edit-lesson');
+        edit_lesson.style.display = 'block';
 
         // Display results for the user in the stored-lesson-data div.
         const stored_lesson_data = document.getElementById('stored-lesson-data');
@@ -719,40 +730,125 @@ const get_lesson_to_update = (lesson_id) => {
         // Hide all other divs
         document.getElementById('saved-lessons').style.display = 'none';
        
+        const update_heading_h3 = document.querySelector('#edit-lesson-h3');
+        update_heading_h3.innerHTML = 'Update Lesson';
+
         const title = document.createElement('p');
-        title.innerHTML = `Title: ${result.title} : ${result.id}`;
+        title.innerHTML = `Title: ${result[0].title} : ${result[0].id}`;
         stored_lesson_data.append(title);
         const url = document.createElement('p');
-        url.innerHTML = `Link: ${result.url}`;
+        url.innerHTML = `Link: ${result[0].url}`;
         stored_lesson_data.append(url);
         const objective = document.createElement('p');
-        objective.innerHTML = `Objective: ${result.objective}`;
+        objective.innerHTML = `Objective: ${result[0].objective}`;
         stored_lesson_data.append(objective);
         const grade = document.createElement('p');
-        grade.innerHTML = `Grade Level: ${result.grade}`;
+        grade.innerHTML = `Grade Level: ${result[0].grade}`;
         stored_lesson_data.append(grade);
+
         const standards = document.createElement('ul');
-        for (i in result.commonCore) {
+        for (i in result[0].commonCore) {
             const standards_li = document.createElement('li');
-            standards_li.innerHTML = `Standards: ${result.commonCore[i]}`;
-            standards.append(standards_li); 
-            stored_lesson_data.append(standards);           
-        }
+            standards_li.innerHTML = `Standards: ${result[0].commonCore[i]}`;
+            standards.append(standards_li);
+            stored_lesson_data.append(standards);        
+        }         
 
         const subject = document.createElement('ul');
-        for (i in result.subject) {
+        for (i in result[0].subject) {
             const subject_li = document.createElement('li');
-            subject_li.innerHTML = `Subject: ${result.subject[i]}`;
-            subject.append(subject_li); 
+            subject_li.innerHTML = `Subject: ${result[0].subject[i]}`;
+            subject.append(subject_li);       
             stored_lesson_data.append(subject);           
-        }
+        }  
 
         const duration = document.createElement('p');
-        duration.innerHTML = `Duration: ${result.duration}`;
+        duration.innerHTML = `Duration: ${result[0].duration}`;
         stored_lesson_data.append(duration); 
 
-        update_lesson(lesson_id);
-       
+        const question_h4 = document.createElement('h4');
+        question_h4.innerHTML = 'Would you like to change the following?';
+        stored_lesson_data.append(question_h4);
+
+        const lesson_notes_p = document.createElement('p');
+        lesson_notes_p.innerHTML = `Notes: ${result[1].notes}`;
+        stored_lesson_data.append(lesson_notes_p);
+
+        const lesson_image_p = document.createElement('p');
+        lesson_image_p.innerHTML = `Image: ${result[1].image}`;
+        stored_lesson_data.append(lesson_image_p);
+
+        const lesson_doc_p = document.createElement('p');
+        lesson_doc_p.innerHTML = `Document: ${result[1].doc_upload}`;
+        stored_lesson_data.append(lesson_doc_p);
+
+        // Update form
+        const edit_form = document.querySelector('#edit-form');
+
+        const notes_label = document.createElement('label');
+        notes_label.setAttribute('for', 'notes');
+        notes_label.setAttribute('class', 'form-label');
+        notes_label.innerHTML = 'Lesson Notes:';
+        edit_form.append(notes_label);
+
+        const notes = document.createElement('textarea');
+        notes.innerHTML = `${result[1].notes}`;
+        notes.setAttribute('id', 'notes');
+        notes.setAttribute('class', 'form-control');
+        notes.setAttribute('placeholder', 'Add Lesson Notes Here');
+        edit_form.append(notes);
+
+        const image_label = document.createElement('label');
+        image_label.setAttribute('for', 'image-upload');
+        image_label.setAttribute('class', 'form-label');
+        image_label.innerHTML = 'Upload an Image';
+        edit_form.append(image_label);
+
+        const image = document.createElement('input');
+        image.setAttribute('type', 'file');
+        image.setAttribute('id', 'image-upload');
+        image.setAttribute('name', 'image');
+        image.setAttribute('multiple', '');
+        image.setAttribute('accept', '.png,.jpeg,.jpg,.bmp');
+        edit_form.append(image);
+
+        const doc_file_label = document.createElement('label');
+        doc_file_label.setAttribute('for', 'doc-file');
+        doc_file_label.setAttribute('class', 'form-label');
+        doc_file_label.innerHTML = 'Upload a Document';
+        edit_form.append(doc_file_label);
+
+        const doc_file = document.createElement('input');
+        doc_file.setAttribute('type', 'file');
+        doc_file.setAttribute('id', 'doc-file');
+        doc_file.setAttribute('name', 'doc-file');
+        doc_file.setAttribute('multiple', '');
+        doc_file.setAttribute('accept', '.doc,.docx,.pdf');
+        edit_form.append(doc_file);
+
+        const save_button = document.createElement('button');
+        save_button.setAttribute('type', 'submit');
+        save_button.setAttribute('id', 'save-edit');
+        save_button.setAttribute('class', 'btn btn-success');
+        save_button.innerHTML = 'Save';
+        edit_form.append(save_button);  
+        
+        // Add event listener to Save button.
+        save_button.addEventListener('click', save_edits.bind(null, lesson_id));
+
+        document.getElementById('save-edit').addEventListener('click', (e) => {
+            e.preventDefault(); // ****** Prevent form submission / page reload ******
+
+            // Store user input/edit form field values in the following variables.
+            const edit_notes = document.querySelector('#notes').value;
+
+            // Get form element
+            formData = new FormData(edit_form);
+            console.log('Edit Form Data:', formData);
+            
+            save_edits(lesson_id, edit_notes, formData);
+
+        });
     });
 }
 
@@ -895,17 +991,17 @@ const save_edits = (lesson_id, edit_notes, formData) => {
         document.body.scrollTop = document.documentElement.scrollTop = 0;
 
         // Show the edited lesson with the updated information.
-        edited_lesson(lesson_id);
+        complete_lesson(lesson_id);
     })
     .catch(error => console.error('formData Error:', error));
 }
 
 
 // Display the edited lesson
-const edited_lesson = (lesson_id) => {
+const complete_lesson = (lesson_id) => {
 
     // Display the following div
-    document.querySelector('#edited-lesson').style.display = 'block';
+    document.querySelector('#complete-lesson').style.display = 'block';
     
     // Hide the following divs
     document.querySelector('#state-parks').style.display = 'none';
@@ -914,7 +1010,6 @@ const edited_lesson = (lesson_id) => {
     document.querySelector('#saved-lessons').style.display = 'none';
     document.querySelector('#edit-lesson').style.display = 'none';
     document.querySelector('#park-learning').style.display = 'none';
-
     
     // Send a POST request to the /edit route with the values captured above.
     fetch(`lesson/${lesson_id}`)
@@ -923,11 +1018,19 @@ const edited_lesson = (lesson_id) => {
         console.log('Fetch Lesson Result', result);
         // console.log('Fetch Lesson Result Length:', result.length)
 
-        const edited_lesson_div = document.querySelector('#edited-lesson');
+        const complete_lesson_div = document.querySelector('#complete-lesson');
         
         const heading = document.createElement('h3');
-        heading.innerHTML = `Edited Lesson ID: ${lesson_id}`
-        edited_lesson_div.append(heading);   
+        heading.innerHTML = `Complete Lesson ID: ${lesson_id}`
+        complete_lesson_div.append(heading);   
+
+        // console.log(result[0].title);
+
+        // Get Park Learning Links
+        // park = result[0].parks[0];
+        // console.log('Park:', park);
+        // park_learning_links(park_code);
+        // park_learning_links(park);
 
         // If the lesson has resources, result is an array and result.length will be 2. 
         // If the lesson has no resources, result is an object and result.length is undefined.
@@ -935,26 +1038,29 @@ const edited_lesson = (lesson_id) => {
     
             const lesson_title_p = document.createElement('p');
             lesson_title_p.innerHTML = `Title: ${result.title}`;
-            edited_lesson_div.append(lesson_title_p);  
+            complete_lesson_div.append(lesson_title_p);  
             
             const lesson_url_p = document.createElement('p');
-            lesson_url_p.innerHTML = `URL: ${result.url}`;
-            edited_lesson_div.append(lesson_url_p);
+            const lesson_url_link = document.createElement('a');
+            lesson_url_link.innerHTML = `${result.title} Lesson Plan`;
+            lesson_url_link.setAttribute('href', `${result.url}`);
+            lesson_url_p.append(lesson_url_link);
+            complete_lesson_div.append(lesson_url_p);
 
             const lesson_objective_p = document.createElement('p');
             lesson_objective_p.innerHTML = `Objective: ${result.objective}`;
-            edited_lesson_div.append(lesson_objective_p);
+            complete_lesson_div.append(lesson_objective_p);
 
             const lesson_grade_p = document.createElement('p');
             lesson_grade_p.innerHTML = `Grade Level: ${result.grade}`;
-            edited_lesson_div.append(lesson_grade_p);
+            complete_lesson_div.append(lesson_grade_p);
 
             const lesson_standards_ul = document.createElement('ul');
             for (i in result.commonCore) {
                 const lesson_standards_li = document.createElement('li');
                 lesson_standards_li.innerHTML = `Standards: ${result.commonCore[i]}`;
                 lesson_standards_ul.append(lesson_standards_li); 
-                edited_lesson_div.append(lesson_standards_ul);           
+                complete_lesson_div.append(lesson_standards_ul);           
             }
 
             const lesson_subject_ul = document.createElement('ul');
@@ -962,37 +1068,40 @@ const edited_lesson = (lesson_id) => {
                 const lesson_subject_li = document.createElement('li');
                 lesson_subject_li.innerHTML = `Subject: ${result.subject[i]}`;
                 lesson_subject_ul.append(lesson_subject_li); 
-                edited_lesson_div.append(lesson_subject_ul);           
+                complete_lesson_div.append(lesson_subject_ul);           
             }
 
             const lesson_duration_p = document.createElement('p');
             lesson_duration_p.innerHTML = `Duration: ${result.duration}`;
-            edited_lesson_div.append(lesson_duration_p); 
+            complete_lesson_div.append(lesson_duration_p); 
 
         } else {
 
             const lesson_title_p = document.createElement('p');
             lesson_title_p.innerHTML = `Title: ${result[0].title}`;
-            edited_lesson_div.append(lesson_title_p);
+            complete_lesson_div.append(lesson_title_p);
 
             const lesson_url_p = document.createElement('p');
-            lesson_url_p.innerHTML = `URL: ${result[0].url}`;
-            edited_lesson_div.append(lesson_url_p);
+            const lesson_url_link = document.createElement('a');
+            lesson_url_link.innerHTML = `${result[0].title} Lesson Plan`;
+            lesson_url_link.setAttribute('href', `${result[0].url}`);
+            lesson_url_p.append(lesson_url_link);
+            complete_lesson_div.append(lesson_url_p);
 
             const lesson_objective_p = document.createElement('p');
             lesson_objective_p.innerHTML = `Objective: ${result[0].objective}`;
-            edited_lesson_div.append(lesson_objective_p);
+            complete_lesson_div.append(lesson_objective_p);
 
             const lesson_grade_p = document.createElement('p');
             lesson_grade_p.innerHTML = `Grade Level: ${result[0].grade}`;
-            edited_lesson_div.append(lesson_grade_p);
+            complete_lesson_div.append(lesson_grade_p);
 
             const lesson_standards_ul = document.createElement('ul');
             for (i in result[0].commonCore) {
                 const lesson_standards_li = document.createElement('li');
                 lesson_standards_li.innerHTML = `Standards: ${result[0].commonCore[i]}`;
                 lesson_standards_ul.append(lesson_standards_li); 
-                edited_lesson_div.append(lesson_standards_ul);           
+                complete_lesson_div.append(lesson_standards_ul);           
             }
 
             const lesson_subject_ul = document.createElement('ul');
@@ -1000,24 +1109,24 @@ const edited_lesson = (lesson_id) => {
                 const lesson_subject_li = document.createElement('li');
                 lesson_subject_li.innerHTML = `Subject: ${result[0].subject[i]}`;
                 lesson_subject_ul.append(lesson_subject_li); 
-                edited_lesson_div.append(lesson_subject_ul);           
+                complete_lesson_div.append(lesson_subject_ul);           
             }
 
             const lesson_duration_p = document.createElement('p');
             lesson_duration_p.innerHTML = `Duration: ${result[0].duration}`;
-            edited_lesson_div.append(lesson_duration_p);            
+            complete_lesson_div.append(lesson_duration_p);            
     
             const lesson_notes_p = document.createElement('p');
             lesson_notes_p.innerHTML = `Notes: ${result[1].notes}`;
-            edited_lesson_div.append(lesson_notes_p);
+            complete_lesson_div.append(lesson_notes_p);
 
             const lesson_image_p = document.createElement('p');
             lesson_image_p.innerHTML = `Image: ${result[1].image}`;
-            edited_lesson_div.append(lesson_image_p);
+            complete_lesson_div.append(lesson_image_p);
 
             const lesson_doc_p = document.createElement('p');
             lesson_doc_p.innerHTML = `Document: ${result[1].doc_upload}`;
-            edited_lesson_div.append(lesson_doc_p);
+            complete_lesson_div.append(lesson_doc_p);
         }
         
     })

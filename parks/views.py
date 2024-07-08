@@ -35,17 +35,17 @@ def edit(request):
         # print('Edit Request.FILES:', request.FILES)
 
         id = request.POST.get('id')
-        # print('Edit ID:', id)
+        print('Edit ID:', id)
 
         # Capture the edit form data values.
         notes = request.POST.get('notes')
-        # print('Edit Notes:', notes)
+        print('Edit Notes:', notes)
 
         image = request.FILES['image'] 
-        # print('Edit Image:', image)
+        print('Edit Image:', image)
 
         doc_upload = request.FILES['doc-file']
-        # print('Edit Doc Upload:', doc_upload)
+        print('Edit Doc Upload:', doc_upload)
 
         # Get user from the POST request.
         user_name = request.user
@@ -56,26 +56,53 @@ def edit(request):
 
         lesson = Lesson.objects.get(pk=id) 
         print('Lesson:', lesson)
+        print('Lesson.hasResources:', lesson.hasResources)
 
-        # Set/Save Lesson object hasResources field as True.
-        lesson_id.hasResources = True
-        lesson_id.save()
+        # If Lesson.hasResources, update that Resources entry
+        if lesson.hasResources:
+            # Get the Resources object for this lesson and user.
+            resources = Resources.objects.filter(lesson_id=id).filter(author=author).values()
+            resources_to_update_id = resources[0]['id']
+            print('Resources to Update ID:', resources[0]['id'])
+            print('Resources to Update:', resources)
 
-        resources = Resources()
-        resources.lesson = lesson_id
-        resources.notes = notes
-        resources.author = author
+            resource_to_update = Resources.objects.get(pk=resources_to_update_id)
+            print('Resource to Update:', resource_to_update)
 
-        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
-        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
-            resources.image = image
-        
-        if len(doc_upload) != 0:
-            resources.doc_upload = doc_upload
+            # https://stackoverflow.com/questions/3681627/how-to-update-fields-in-a-model-without-creating-a-new-record-in-django
+            resource_to_update.notes = notes
+            
+            # if len(image) != 0:
+            resource_to_update.image = image
+            
+            # if len(doc_upload) != 0:
+            resource_to_update.doc_upload = doc_upload
 
-        resources.save()
+            resource_to_update.save()
 
-        return JsonResponse({'message': 'Lesson updated successfully.'})
+            return JsonResponse({'message': 'Lesson updated successfully.'})
+
+        # If Lesson.hasResources == False, create a new Resources entry
+        else:
+            # Set/Save Lesson object hasResources field as True.
+            lesson_id.hasResources = True
+            lesson_id.save()
+
+            resources = Resources()
+            resources.lesson = lesson_id
+            resources.notes = notes
+            resources.author = author
+
+            # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
+            if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
+                resources.image = image
+            
+            if len(doc_upload) != 0:
+                resources.doc_upload = doc_upload
+
+            resources.save()
+
+            return JsonResponse({'message': 'Lesson updated successfully.'})
     
     else:
         return JsonResponse({'error': 'POST request required.'}) 
@@ -89,7 +116,6 @@ def get_edit_form(request):
         'form': form
     } 
     return render(request, 'parks/index.html', context)
-"""
 
 def get_update_form(request, lesson_id):
 
@@ -99,6 +125,7 @@ def get_update_form(request, lesson_id):
         
     } 
     return render(request, 'parks/index.html', context)
+"""
 
 
 def get_lesson_to_edit(request, lesson_id):
@@ -116,7 +143,7 @@ def get_lesson_to_edit(request, lesson_id):
 
 def lesson(request, lesson_id):
 
-    print('Lesson ID', lesson_id)
+    # print('Lesson ID', lesson_id)
 
     current_user_id = request.user.id
     # print('Current User:', current_user_id)
@@ -142,8 +169,8 @@ def lesson(request, lesson_id):
     else:
 
         for resource in resources: # Look inside the QuerySet list to access its ID
-            print('Resource:', resource)
-            print('Resource ID:', resource['id']) # ********
+            # print('Resource:', resource)
+            # print('Resource ID:', resource['id']) # ********
 
             resource_id = resource['id']
 
@@ -155,7 +182,7 @@ def lesson(request, lesson_id):
             lesson_resources = Resources.objects.filter(pk=resource_id).values('notes', 'image', 'doc_upload')
             
             # lesson_resources = Resources.objects.filter(pk=resource_id)
-            print('Lesson Resources:', lesson_resources)         
+            # print('Lesson Resources:', lesson_resources)         
     
         data_chain = list(chain([lesson.serialize()], lesson_resources)) # WORKS - returns lesson as a dictionary with key value pairs
         # data_chain = list(chain(lesson.serialize(), lesson_resources)) # DOES NOT WORK - returns lesson with keys only
@@ -379,3 +406,60 @@ def saved(request):
             
             # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
             return JsonResponse([lesson.serialize() for lesson in lessons], safe=False)
+
+"""
+def update(request):
+
+    # FormData
+    # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
+    if request.method == 'POST':
+
+        print('Edit Request:', request)
+        # print('Edit Request.FILES:', request.FILES)
+
+        id = request.POST.get('id')
+        # print('Edit ID:', id)
+
+        # Capture the edit form data values.
+        notes = request.POST.get('notes')
+        # print('Edit Notes:', notes)
+
+        image = request.FILES['image'] 
+        # print('Edit Image:', image)
+
+        doc_upload = request.FILES['doc-file']
+        # print('Edit Doc Upload:', doc_upload)
+
+        # Get user from the POST request.
+        user_name = request.user
+        author = user_name
+
+        lesson_id = Lesson.objects.get(pk=id) # Lesson object (#)      
+        print('Lesson ID Line 55:', lesson_id)
+
+        lesson = Lesson.objects.get(pk=id) 
+        print('Lesson:', lesson)
+
+        # Set/Save Lesson object hasResources field as True.
+        lesson_id.hasResources = True
+        lesson_id.save()
+
+        resources = Resources()
+        resources.lesson = lesson_id
+        resources.notes = notes
+        resources.author = author
+
+        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
+        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
+            resources.image = image
+        
+        if len(doc_upload) != 0:
+            resources.doc_upload = doc_upload
+
+        resources.save()
+
+        return JsonResponse({'message': 'Lesson updated successfully.'})
+    
+    else:
+        return JsonResponse({'error': 'POST request required.'}) 
+"""
