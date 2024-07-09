@@ -414,7 +414,7 @@ const save_a_lesson = (park_code, lesson_id) => {
                 const id = lesson.id;
                 const url = lesson.url;
                 const title = lesson.title;
-                const parks = lesson.parks;
+                const park = park_code;
                 const questionObjective = lesson.questionObjective;
                 const gradeLevel = lesson.gradeLevel;
                 const commonCore = lesson.commonCore;
@@ -467,7 +467,7 @@ const save_a_lesson = (park_code, lesson_id) => {
                             id: id,
                             url: url,
                             title: title,
-                            parks: parks,
+                            park: park,
                             questionObjective: questionObjective,
                             gradeLevel: gradeLevel,
                             commonCore: commonCore,
@@ -525,6 +525,12 @@ const get_saved_lessons = () => {
         saved_lessons.append(saved_heading);
         const hr = document.createElement('hr');
         saved_lessons.append(hr);
+
+        if (result.length == 0) {
+            const no_lessons_saved = document.createElement('p');
+            no_lessons_saved.innerHTML = 'You have no saved lessons.';
+            saved_lessons.append(no_lessons_saved);
+        }
 
         for (lesson in result) {
             
@@ -1034,7 +1040,7 @@ const complete_lesson = (lesson_id) => {
         if (result.length == undefined) { 
 
             // Get Park Learning Links
-            park = result.parks[0];
+            park = result.park
             console.log('Park:', park);
             // park_learning_links(park_code);
             park_learning_links(park);
@@ -1081,7 +1087,7 @@ const complete_lesson = (lesson_id) => {
         } else {
 
             // Get Park Learning Links
-            park = result[0].parks[0];
+            park = result[0].park;
             console.log('Park:', park);
             // park_learning_links(park_code);
             park_learning_links(park);

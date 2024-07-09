@@ -24,21 +24,21 @@
                         <li class="nav-item">
                             
                             {% comment %} Clicking on the username should load the user's profile information. {% endcomment %}
-                            <a class="nav-link" href="#">Hello, {{ user.username }}</a>
+                            <a class="nav-hello nav-link" href="#">Hello, {{ user.username }}</a>
                         </li>
                         <li class="nav-item">
                             <!-- <a id="saved" class="nav-link" href="{% url 'saved' %}">Saved Lessons</a> --><!-- When the 'Saved Lessons' link <a> is clicked, the program displays JSON data in the browser via href route/path /saved which is not the desired outcome. -->
                             <button id="saved" class="nav-link">Saved Lessons</button><!-- When the button is clicked, the program sends data to the console as expected. -->
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                            <a class="nav-login nav-link" href="{% url 'logout' %}">Log Out</a>
                         </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                                <a class="nav-logout nav-link" href="{% url 'login' %}">Log In</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                                <a class="nav-register nav-link" href="{% url 'register' %}">Register</a>
                             </li>
                         {% endif %}
                     </ul>

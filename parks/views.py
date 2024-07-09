@@ -354,7 +354,8 @@ def save_park_lesson(request):
                 url = data['url']
                 # url = data.get('url')
                 title = data.get('title')
-                parks = data.get('parks')
+                park = data.get('park')
+                print('Save park_code:', park)
                 questionObjective = data.get('questionObjective')
                 gradeLevel = data.get('gradeLevel')
                 commonCore = data.get('commonCore')
@@ -366,7 +367,7 @@ def save_park_lesson(request):
                 lesson = Lesson(
                     url=url,
                     title=title,
-                    parks=parks,
+                    park=park,
                     questionObjective=questionObjective,
                     gradeLevel=gradeLevel,
                     commonCore=commonCore,

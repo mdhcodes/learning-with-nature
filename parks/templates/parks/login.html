@@ -10,15 +10,15 @@
 
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
-        <div class="form-group">
-            <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+        <div class="form-group mb-3">
+            <input autofocus class="input form-control" type="text" name="username" placeholder="Username">
         </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
+        <div class="form-group mb-3">
+            <input class="input form-control" type="password" name="password" placeholder="Password">
         </div>
-        <input class="btn btn-primary" type="submit" value="Login">
+        <input class="login btn btn-primary mb-3" type="submit" value="Login">
     </form>
 
-    Don't have an account? <a href="{% url 'register' %}">Register here.</a>
+    <p class="alt-register">Don't have an account? <a href="{% url 'register' %}">Register here.</a></p>
 
 {% endblock body %}

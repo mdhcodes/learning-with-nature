@@ -15,8 +15,9 @@ class Lesson(models.Model):
     npid = models.CharField(max_length=100)
     url = models.URLField()
     title = models.TextField()    
-    parks = models.JSONField() # The parkCode is stored in the parks list. Link to these parks in the lesson plan. https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}
-    # park = models.CharField(max_length=10) # Only save the one park code that applies to the specified lesson plan.
+    # parks = models.JSONField() # The parkCode is stored in the parks list. Link to these parks in the lesson plan. https://developer.nps.gov/api/v1/lessonplans?parkCode=${park_code}&api_key=${api_key}
+    # https://stackoverflow.com/questions/26185687/you-are-trying-to-add-a-non-nullable-field-new-field-to-userprofile-without-a
+    park = models.CharField(max_length=10, default='') # Only save the one park code that applies to the specified lesson plan.
     questionObjective = models.TextField()
     gradeLevel = models.TextField()
     commonCore = models.JSONField()
@@ -38,7 +39,8 @@ class Lesson(models.Model):
             "id": self.id,
             "url": self.url,
             "title": self.title,
-            "parks": self.parks,
+            # "parks": self.parks,
+            "park": self.park,
             "questionObjective": self.questionObjective,
             "gradeLevel": self.gradeLevel,
             "commonCore": self.commonCore,
