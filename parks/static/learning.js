@@ -13,6 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
         get_parks(state);
     });
 
+
+    const nav_hello = document.querySelector('.nav-hello'); 
+    if (nav_hello !== null) {
+        nav_hello.addEventListener('click', () => {
+            console.log('Hello User Clicked');
+        });
+    }
+
+
     const saved = document.querySelector('#saved');
     if (saved !== null) {
         saved.addEventListener('click', () => {
@@ -58,6 +67,12 @@ const hide_all_divs = () => {
     document.querySelector('#saved-lessons').style.display = 'none';
     document.querySelector('#complete-lesson').style.display = 'none';   
 }
+
+const remove_divs = () => {
+    // Remove and then append dynamically created divs.
+    // if (document.querySelector('section') in document.getElementById('state-parks')) {}
+    // Within park_learning_links() function, create park-learning div and add and remove as needed
+}   // Within get_park_lessons() function, create np-lessons div and add and remove as needed
 
 
 const full_state_names = {
@@ -497,6 +512,7 @@ const save_a_lesson = (park_code, lesson_id) => {
 
 
 const get_saved_lessons = () => {
+
     // Hide message if there is one to clear/reset innerHTML and styles.
     document.getElementById('message').innerHTML = '';
     document.getElementById('message').setAttribute('class', '');
@@ -585,11 +601,16 @@ const get_lesson = (lesson_id) => {
         // Hide all divs to start
         hide_all_divs();
 
+        const edit_lesson_div = document.getElementById('edit-lesson');
+        // Display the edit-lesson div.
+        edit_lesson_div.style.display = 'block';
         // Display results for the user in the stored-lesson-data div.
         const stored_lesson_data = document.getElementById('stored-lesson-data');
-        // stored_lesson_data.style.display = 'block';
-        document.getElementById('edit-lesson').style.display = 'block';
-               
+        stored_lesson_data.style.display = 'block';
+         
+        const edit_heading_h3 = document.querySelector('#edit-lesson-h3');
+        edit_heading_h3.innerHTML = 'Edit Lesson';
+
         const title = document.createElement('p');
         title.innerHTML = `Title: ${result.title} : ${result.id}`;
         stored_lesson_data.append(title);
@@ -737,15 +758,16 @@ const get_lesson_to_update = (lesson_id) => {
         // Hide all divs to start
         hide_all_divs();
 
-        // Display results for the user in the stored-lesson-data div nested inside the edit-lesson div.
         // Display form to edit lesson plan in the edit-lesson div.
+        // Display results for the user in the stored-lesson-data div nested inside the edit-lesson div.
+        const edit_lesson_div = document.getElementById('edit-lesson');
         const stored_lesson_data = document.getElementById('stored-lesson-data');
-        const edit_lesson = document.getElementById('edit-lesson');
-        edit_lesson.style.display = 'block'; 
+        edit_lesson_div.style.display = 'block'; 
+        stored_lesson_data.style.display = 'block'; 
        
         const update_heading_h3 = document.querySelector('#edit-lesson-h3');
         update_heading_h3.innerHTML = 'Update Lesson';
-
+        
         const title = document.createElement('p');
         title.innerHTML = `Title: ${result[0].title} : ${result[0].id}`;
         stored_lesson_data.append(title);
