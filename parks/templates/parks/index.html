@@ -112,6 +112,40 @@
     <div id="complete-lesson">    
     </div>
 
+    <div id="user-profile">
+    </div>
+
+    <div id="change-username">
+        <form action="{% url 'update_username' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <input class="input form-control" autofocus type="text" name="old-username" placeholder="Old Username">
+            </div>
+            <div class="form-group mb-3">
+                <input class="input form-control" type="text" name="new-username" placeholder="New Username">
+            </div>
+            <input class="update-user-name-profile btn btn-primary mb-3" type="submit" value="Update Username">
+            <a class="btn-update update-user-profile btn btn-primary mb-3" href="{% url 'index' %}">Cancel</a>
+        </form>
+    </div> 
+
+    <div id="change-password">
+        <form action="{% url 'update_password' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group mb-3">
+                <input class="input form-control" autofocus type="password" name="old-password" placeholder="Old Password">
+            </div>
+            <div class="form-group mb-3">
+                <input class="input form-control" type="password" name="new-password" placeholder="New Password">
+            </div>
+            <div class="form-group mb-3">
+                <input class="input form-control" type="password" name="new-confirmation" placeholder="Confirm New Password">
+            </div>
+            <input class="update-user-password-profile btn btn-primary mb-3" type="submit" value="Update Password">
+            <a class="btn-update update-user-profile btn btn-primary mb-3" href="{% url 'index' %}">Cancel</a>
+        </form>
+    </div> 
+
 {% endblock body %}
 
 {% block script %}

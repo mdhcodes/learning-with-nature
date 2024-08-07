@@ -56,7 +56,10 @@ body {
 #np-lessons,
 #saved-lessons,
 #edit-lesson,
-#complete-lesson {
+#complete-lesson,
+#user-profile,
+#change-username,
+#change-password {
     margin-top: 3em;
 }
 
@@ -96,6 +99,40 @@ body {
     border-color: #537765;
 }
 
+/* Update Profile Buttons */
+
+.btn-username {
+    margin-right: 1em;
+}
+
+.btn-update {
+    text-decoration: none;
+    margin-left: .5em;
+}
+
+.btn-username,
+.btn-password,
+.update-user-profile,
+.update-user-name-profile,
+.update-user-password-profile {
+    border: thin solid #537765 !important;
+    padding: .5em !important;
+    color: #D9EAD3 !important;
+    background-color: #537765 !important;
+    font-weight: 600;
+    border-radius: 5px;
+}
+
+.btn-username:hover,
+.btn-password:hover,
+.update-user-profile:hover,
+.update-user-name-profile:hover,
+.update-user-password-profile:hover {
+    color: #fff !important;
+    background-color: #123524 !important;
+}
+
+
 /* STYLE LOGIN AND REGISTER PAGES WITH GREEN COLORS AND POSSIBLY AN IMAGE */
 /* https://stackoverflow.com/questions/16156594/how-to-change-border-color-of-textarea-on-focus */
 
@@ -106,7 +143,9 @@ body {
   }
 
 .register,
-.login {
+.login,
+.btn-username,
+.btn-password {
     border: thin solid #537765 !important;
     padding: .5em !important;
     color: #D9EAD3 !important;
@@ -115,7 +154,9 @@ body {
 }
 
 .register:hover,
-.login:hover {
+.login:hover,
+.btn-username:hover,
+.btn-password:hover {
     color: #fff !important;
     background-color: #123524 !important;
 }

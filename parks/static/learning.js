@@ -17,7 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const nav_hello = document.querySelector('.nav-hello'); 
     if (nav_hello !== null) {
         nav_hello.addEventListener('click', () => {
-            console.log('Hello User Clicked');
+            const current_user = document.getElementById('current-user').value;
+            // console.log(`Hello, ${current_user} Clicked`);
+
+            update_user_profile(current_user);
         });
     }
 
@@ -34,28 +37,133 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Display cleared/reset message div.
             document.getElementById('message').style.display = 'block';
-
-            // If a stored-lesson-data and the edit-form already exist and the user selects a new lesson to edit, the user should not see two lessons to edit.
-            // Check if edit_form has a CSS rule display:block. If so remove the element.
-            // https://stackoverflow.com/questions/4866229/check-element-css-display-with-javascript
-            // const edit_lesson = document.querySelector('#edit-lesson');
-            // console.log(edit_lesson);
-            
-            // if (edit_lesson.style.display === 'block') {
-                // Removing a div clears the page and does not display new results.
-                // Hide all child nodes of edit-lesson (stored-lesson-data and edit-form)
-                // edit_lesson.style.display = 'none';
-                // Refresh the page
-                // this.location.reload();                
-                // get_saved_lessons();
-            // } else {
-            // 
-            // }
+           
             get_saved_lessons();
         });
     }       
 
 });
+
+
+const update_user_profile = (current_user) => {
+
+    hide_all_divs();
+
+    console.log('Current User - Update Profile:', current_user);
+
+    // Get user information
+    const user_profile = document.getElementById('user-profile');
+    user_profile.style.display = 'block';
+
+    const user_profile_heading_h3 = document.createElement('h3');
+    user_profile_heading_h3.innerHTML = `Hello ${current_user}!`;
+    user_profile.append(user_profile_heading_h3);
+
+    const user_profile_update = document.createElement('p');
+    user_profile_update.innerHTML = 'Would you like to update your profile?';
+    user_profile.append(user_profile_update);
+
+    const user_profile_username = document.createElement('button');
+    user_profile_username.innerHTML = 'Change Username';
+    user_profile_username.setAttribute('class', 'btn-username');
+    user_profile.append(user_profile_username);
+
+    const user_profile_password = document.createElement('button');
+    user_profile_password.innerHTML = 'Change Password';
+    user_profile_password.setAttribute('class', 'btn-password');
+    user_profile.append(user_profile_password);
+
+    user_profile_username.addEventListener('click', () => {
+        change_username(current_user);
+    });
+
+    user_profile_password.addEventListener('click', () => {
+        change_password(current_user);
+    });
+}
+
+
+const change_username = (current_user) => {
+    
+    hide_all_divs();
+    document.querySelector("#change-username").style.display = 'block';
+    console.log('Current User - Username:', current_user);
+    
+    const update_username = document.querySelector('.update-user-name-profile');
+    update_username.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent form submission
+
+        // https://stackoverflow.com/questions/15148659/how-can-i-use-queryselector-on-to-pick-an-input-element-by-name
+        const old_username = document.querySelector('input[name="old-username"]').value;
+        const new_username = document.querySelector('input[name="new-username"]').value;
+        console.log('Old Username', old_username);
+        console.log('New Username', new_username);
+    
+        // fetch(`update_profile/${current_user}`)
+        fetch('update_username', {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify({
+                old_username: old_username,
+                new_username: new_username
+            })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(result => {
+            console.log('Result:', result);
+            // TODO
+            // Display an alert that confirms the username was updated.
+
+            // Display ?
+    
+        });
+    });
+    
+}
+
+const change_password = (current_user) => {
+    
+    hide_all_divs();
+    document.querySelector("#change-password").style.display = 'block';
+    console.log('Current User - Password:', current_user);
+    
+    const update_password = document.querySelector('.update-user-password-profile');
+    update_password.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent form submission
+
+        const old_password = document.querySelector('input[name="old-password"]').value;
+        const new_password = document.querySelector('input[name="new-password"]').value;
+        const new_confirmation = document.querySelector('input[name="new-confirmation"]').value;
+        console.log('Old Password:', old_password);
+        console.log('New Password:', new_password);
+        console.log('New Confirmation:', new_confirmation);
+
+        // fetch(`update_profile/${current_user}`)
+        fetch('update_password', {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify({
+                old_password: old_password,
+                new_password: new_password,
+                new_confirmation: new_confirmation
+            })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(result => {
+            console.log('Result:', result);
+            // TODO
+            // Display an alert that confirms the password was updated.
+
+            // Display ?
+
+        });
+
+    });    
+}
 
 
 const hide_all_divs = () => {
@@ -66,13 +174,10 @@ const hide_all_divs = () => {
     document.querySelector('#np-lessons').style.display = 'none';
     document.querySelector('#saved-lessons').style.display = 'none';
     document.querySelector('#complete-lesson').style.display = 'none';   
+    document.querySelector('#user-profile').style.display = 'none';   
+    document.querySelector('#change-username').style.display = 'none';   
+    document.querySelector('#change-password').style.display = 'none';   
 }
-
-const remove_divs = () => {
-    // Remove and then append dynamically created divs.
-    // if (document.querySelector('section') in document.getElementById('state-parks')) {}
-    // Within park_learning_links() function, create park-learning div and add and remove as needed
-}   // Within get_park_lessons() function, create np-lessons div and add and remove as needed
 
 
 const full_state_names = {
@@ -161,7 +266,7 @@ const get_parks = (state) => {
         const hr = document.createElement('hr');
         section.append(hr);
 
-        console.log('Park Data:', result.data)
+        // console.log('Park Data:', result.data)
 
         for (data in result.data) {    
             const row = document.createElement('div');
@@ -212,7 +317,7 @@ const get_parks = (state) => {
 
 
 const park_learning_links = (park_code) => {
-    console.log('Park Code:', park_code);    
+    // console.log('Park Code:', park_code);    
     
     // Send a GET request to the National Parks Service with the park_code value.
     fetch(`park_learning/${park_code}`)
@@ -390,7 +495,7 @@ const get_park_lessons = (park_code) => {
             btn.addEventListener('click', (e) => {
                 // https://stackoverflow.com/questions/34896106/attach-event-to-dynamic-elements-in-javascript 
                 const target = e.target.closest('.save');
-                console.log('Target:', target);
+                // console.log('Target:', target);
 
                 const lesson_id = target.dataset.lessonid;
 
@@ -403,8 +508,9 @@ const get_park_lessons = (park_code) => {
 
 const save_a_lesson = (park_code, lesson_id) => {  
 
-    console.log('Saving Park Code:', park_code);
-    console.log('Saving Lesson ID:', lesson_id);
+    // console.log('Saving Park Code:', park_code);
+    // console.log('Saving Lesson ID:', lesson_id);
+
     // Connect save button with the specific lesson the user wants to save using the parkCode and lessonId.
     // Fetch the lesson data and store it in variables to pass to the database.   
     fetch(`park_lessons/${park_code}`)
@@ -423,8 +529,9 @@ const save_a_lesson = (park_code, lesson_id) => {
             // Get this button when the event listener is triggered and pass it to this function
             // If lesson_id === lesson.id from the endpoint
             if (lesson_id === lesson.id) {
-                console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
-                console.log('Lesson_ID:', lesson_id);
+                // console.log('Lesson to Save:', lesson); // If 2 lessons are available, the program lists the lesson twice in the console.
+                // console.log('Lesson_ID:', lesson_id);
+
                 // Store lesson data in the following variables.
                 const id = lesson.id;
                 const url = lesson.url;
@@ -522,7 +629,6 @@ const get_saved_lessons = () => {
     // Display cleared/reset message div.
     document.getElementById('message').style.display = 'block';
 
-
     // Make a GET request to /saved route to request all specified user's saved lessons.
     fetch('saved')
     .then(response => response.json())
@@ -590,13 +696,13 @@ const get_saved_lessons = () => {
 
 
 const get_lesson = (lesson_id) => {
-    console.log('Lesson ID:', lesson_id);
+    // console.log('Lesson ID:', lesson_id);
 
     // Make a GET request to /get_lesson_to_edit route to request the lesson specified by the user.
     fetch(`get_lesson_to_edit/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
-        console.log('Result of get_lesson_to_edit:', result)
+        // console.log('Result of get_lesson_to_edit:', result)
 
         // Hide all divs to start
         hide_all_divs();
@@ -652,7 +758,7 @@ const get_lesson = (lesson_id) => {
 // Edit a lesson.
 const edit_lesson = (lesson_id) => {
 
-    console.log('Edit_Lesson_ID:', lesson_id);
+    // console.log('Edit_Lesson_ID:', lesson_id);
 
         // Hide all divs to start
         hide_all_divs();
@@ -660,19 +766,10 @@ const edit_lesson = (lesson_id) => {
         // Display form to edit lesson plan in the edit-lesson div.
         const edit_lesson = document.getElementById('edit-lesson');
         edit_lesson.style.display = 'block';
+        
+        // Display the form. 
+        const edit_form = document.querySelector('#edit-form'); 
 
-        /*
-        // Display the form.
-        fetch('get_edit_form')
-        .then(response => response)
-        .then((result) => {
-            console.log('Edit Form Result:', result);
-        });
-        */
-        
-        const edit_form = document.querySelector('#edit-form');
-    
-        
         const notes_label = document.createElement('label');
         notes_label.setAttribute('for', 'notes');
         notes_label.setAttribute('class', 'form-label');
@@ -749,7 +846,6 @@ const edit_lesson = (lesson_id) => {
 const get_lesson_to_update = (lesson_id) => {
     
     // Make a GET request to /get_lesson_to_edit route to request the lesson specified by the user.
-    // fetch(`get_lesson_to_edit/${lesson_id}`)
     fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
@@ -879,7 +975,7 @@ const get_lesson_to_update = (lesson_id) => {
 
             // Get form element
             formData = new FormData(edit_form);
-            console.log('Edit Form Data:', formData);
+            // console.log('Edit Form Data:', formData);
             
             save_edits(lesson_id, edit_notes, formData);
 
@@ -891,7 +987,7 @@ const get_lesson_to_update = (lesson_id) => {
 // Update a lesson that has been edited.
 const update_lesson = (lesson_id) => {
 
-    console.log('Update_Lesson_ID:', lesson_id);
+    // console.log('Update_Lesson_ID:', lesson_id);
 
         // Hide all divs to start
         hide_all_divs();
@@ -1004,9 +1100,9 @@ function getCookie(name) {
 
 const save_edits = (lesson_id, edit_notes, formData) => {
 
-    console.log('Edit ID saved:', lesson_id);
-    console.log('Edit Notes Saved:', edit_notes);  
-    console.log('Edit Form Data in save_edits:', formData);
+    // console.log('Edit ID saved:', lesson_id);
+    // console.log('Edit Notes Saved:', edit_notes);  
+    // console.log('Edit Form Data in save_edits:', formData);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/FormData
     formData.append('id', lesson_id);
@@ -1019,7 +1115,7 @@ const save_edits = (lesson_id, edit_notes, formData) => {
     })
     .then(response => response.json())
     .then(result => {
-        console.log('Result After save_edits:', result);
+        // console.log('Result After save_edits:', result);
         const edited_message = document.getElementById('message');
         edited_message.setAttribute('class', 'alert alert-success');
         edited_message.setAttribute('role', 'alert');
@@ -1048,7 +1144,7 @@ const complete_lesson = (lesson_id) => {
     fetch(`lesson/${lesson_id}`)
     .then(response => response.json())
     .then(result => {
-        console.log('Fetch Lesson Result', result);
+        // console.log('Fetch Lesson Result', result);
         // console.log('Fetch Lesson Result Length:', result.length)
 
         const complete_lesson_div = document.querySelector('#complete-lesson');
@@ -1063,7 +1159,7 @@ const complete_lesson = (lesson_id) => {
 
             // Get Park Learning Links
             park = result.park
-            console.log('Park:', park);
+            // console.log('Park:', park);
             // park_learning_links(park_code);
             park_learning_links(park);
     
@@ -1110,7 +1206,7 @@ const complete_lesson = (lesson_id) => {
 
             // Get Park Learning Links
             park = result[0].park;
-            console.log('Park:', park);
+            // console.log('Park:', park);
             // park_learning_links(park_code);
             park_learning_links(park);
 

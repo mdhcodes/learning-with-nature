@@ -19,63 +19,56 @@ from .forms import CreateResourcesForm
 # Create your views here.
 
 def index(request): 
-      
-    # context = {
-    # } 
-    return render(request, 'parks/index.html') #, context)
+    return render(request, 'parks/index.html')
 
 
+@login_required
 def edit(request):
 
     # FormData
     # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
     if request.method == 'POST':
 
-        print('Edit Request:', request)
+        # print('Edit Request:', request)
         # print('Edit Request.FILES:', request.FILES)
 
         id = request.POST.get('id')
-        print('Edit ID:', id)
+        # print('Edit ID:', id)
 
         # Capture the edit form data values.
         notes = request.POST.get('notes')
-        print('Edit Notes:', notes)
-
+        # print('Edit Notes:', notes)
         image = request.FILES['image'] 
-        print('Edit Image:', image)
-
+        # print('Edit Image:', image)
         doc_upload = request.FILES['doc-file']
-        print('Edit Doc Upload:', doc_upload)
+        # print('Edit Doc Upload:', doc_upload)
 
         # Get user from the POST request.
         user_name = request.user
         author = user_name
 
         lesson_id = Lesson.objects.get(pk=id) # Lesson object (#)      
-        print('Lesson ID Line 55:', lesson_id)
+        # print('Lesson ID Line 55:', lesson_id)
 
         lesson = Lesson.objects.get(pk=id) 
-        print('Lesson:', lesson)
-        print('Lesson.hasResources:', lesson.hasResources)
+        # print('Lesson:', lesson)
+        # print('Lesson.hasResources:', lesson.hasResources)
 
-        # If Lesson.hasResources, update that Resources entry
+        # If Lesson.hasResources, update that .hasResources entry
         if lesson.hasResources:
             # Get the Resources object for this lesson and user.
             resources = Resources.objects.filter(lesson_id=id).filter(author=author).values()
             resources_to_update_id = resources[0]['id']
-            print('Resources to Update ID:', resources[0]['id'])
-            print('Resources to Update:', resources)
+            # print('Resources to Update ID:', resources[0]['id'])
+            # print('Resources to Update:', resources)
 
             resource_to_update = Resources.objects.get(pk=resources_to_update_id)
-            print('Resource to Update:', resource_to_update)
+            # print('Resource to Update:', resource_to_update)
 
+            # Update Resources
             # https://stackoverflow.com/questions/3681627/how-to-update-fields-in-a-model-without-creating-a-new-record-in-django
-            resource_to_update.notes = notes
-            
-            # if len(image) != 0:
+            resource_to_update.notes = notes            
             resource_to_update.image = image
-            
-            # if len(doc_upload) != 0:
             resource_to_update.doc_upload = doc_upload
 
             resource_to_update.save()
@@ -107,35 +100,15 @@ def edit(request):
     else:
         return JsonResponse({'error': 'POST request required.'}) 
 
-"""
-def get_edit_form(request): 
-
-    form = CreateResourcesForm() 
-      
-    context = {
-        'form': form
-    } 
-    return render(request, 'parks/index.html', context)
-
-def get_update_form(request, lesson_id):
-
-    resources = Resources.objects.filter()
-
-    context = {
-        
-    } 
-    return render(request, 'parks/index.html', context)
-"""
-
 
 def get_lesson_to_edit(request, lesson_id):
 
     # print('Request', request)
     # print('Lesson ID:', lesson_id)
 
-    # Get the saved lesson data for the lesson with the given lesson_id for the specified user.
+    # Get the saved lesson data with the given lesson_id for the specified user.
     lesson = Lesson.objects.get(pk=lesson_id)     
-    print('Lesson (to Edit):', lesson)
+    # print('Lesson (to Edit):', lesson)
         
     # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
     return JsonResponse(lesson.serialize())
@@ -151,14 +124,14 @@ def lesson(request, lesson_id):
     # Get data from both tables:
     # Lesson - lesson_id
     lesson = Lesson.objects.get(pk=lesson_id)
-    # lesson = Lesson.objects.filter(pk=lesson_id)
-    print('Edited Lesson to Display:', lesson) # Returns a Lesson object
+    # print('Edited Lesson to Display:', lesson) # Returns a Lesson object
+
     # Resources - author and lesson_id
 
     # https://stackoverflow.com/questions/15874233/how-to-output-django-queryset-as-json
     resources = Resources.objects.filter(lesson_id=lesson_id, author=current_user_id).values() # Returns a QuerySet
     # resources = Resources.objects.filter(lesson_id=lesson_id, author=current_user_id) # Returns a QuerySet [<Resources: Resources object (6)>]
-    print('Edited Lesson Resources to Display:', resources) 
+    # print('Edited Lesson Resources to Display:', resources) 
 
     # Check that resources QuerySet is not empty
     # https://stackoverflow.com/questions/1387727/checking-for-empty-queryset-in-django
@@ -170,7 +143,7 @@ def lesson(request, lesson_id):
 
         for resource in resources: # Look inside the QuerySet list to access its ID
             # print('Resource:', resource)
-            # print('Resource ID:', resource['id']) # ********
+            # print('Resource ID:', resource['id']) 
 
             resource_id = resource['id']
 
@@ -181,12 +154,11 @@ def lesson(request, lesson_id):
             # https://docs.djangoproject.com/en/5.0/ref/models/querysets/#values - "... specify field names to which the SELECT should be limited."
             lesson_resources = Resources.objects.filter(pk=resource_id).values('notes', 'image', 'doc_upload')
             
-            # lesson_resources = Resources.objects.filter(pk=resource_id)
-            # print('Lesson Resources:', lesson_resources)         
+            print('Lesson Resources:', lesson_resources)         
     
         data_chain = list(chain([lesson.serialize()], lesson_resources)) # WORKS - returns lesson as a dictionary with key value pairs
         # data_chain = list(chain(lesson.serialize(), lesson_resources)) # DOES NOT WORK - returns lesson with keys only
-        print('Data Chain:', data_chain)
+        # print('Data Chain:', data_chain)
 
         # In order to allow non-dict objects to be serialized set the safe parameter to False.
         # https://docs.djangoproject.com/en/5.0/ref/request-response/#serializing-non-dictionary-objects
@@ -248,6 +220,81 @@ def park_learning(request, park_code):
     return JsonResponse(park_link_data)
 
 
+@login_required
+def update_password(request):
+
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        # print('Update Profile Data:', data)
+
+        current_user = request.user
+        # print('Current User:', current_user) # Username
+        # print('Type Current User:', type(current_user))
+
+        # Store user input
+        old_password = data['old_password']
+        # print('Old Password:', old_password)
+        new_password = data['new_password']
+        # print('New Password:', new_password)
+        new_confirmation = data['new_confirmation']
+        # print('New Confirmation:', new_confirmation)
+
+        # https://docs.djangoproject.com/en/5.0/topics/auth/default/#authenticating-users
+        # https://stackoverflow.com/questions/71882177/how-to-update-user-password-in-django
+
+        # Authenticate user
+        user = authenticate(username=current_user.username, password=old_password)
+        # print('User:', user)
+
+        # Try to update/reset password
+        if user is not None:
+            if new_password == new_confirmation:
+                user.set_password(new_password)
+                user.save()
+
+                return JsonResponse({'message': 'Password updated successfully.'})
+            else:
+                return JsonResponse({'message': 'Your new password and new password confirmation do not match.'})
+
+        return JsonResponse({'message': 'Your old password does not match'})
+    
+    return JsonResponse({'error': 'POST request required.'})
+
+
+@login_required
+def update_username(request):
+
+    if request.method == 'POST':
+
+        data = json.loads(request.body)
+        # print('Update Profile Data:', data)
+
+        current_user = request.user
+        # print('Current User:', current_user) # Username
+        # print('Type Current User:', type(current_user))
+
+        # Store user input
+        old_username = data['old_username']
+        # print('Old Username:', old_username)
+        new_username = data['new_username']
+        # print('New Username:', new_username)
+
+        user = User.objects.get(username=current_user.username)
+        # print('User:', user)
+        
+        # Try to update/reset username
+        if old_username == current_user.username:
+            user.username = new_username
+            user.save()
+    
+            return JsonResponse({'message': 'Username updated successfully.'})
+        else:
+            return JsonResponse({'message': 'Old username does not match.'})
+    
+    return JsonResponse({'error': 'POST request required.'})
+
+
 def all_park_lessons(request):
 
     # print('Request:', request)
@@ -270,9 +317,6 @@ def park_lessons(request, park_code): #, lesson_id): could have used lesson_id h
     response = requests.get(url)
     park_lesson_data = response.json() # Dictionary
     # print('Park Lesson Data:', park_lesson_data)
-
-    # From the lessons returned for the park_code, identify the specific lesson to edit with the lesson_id.
-    # if (lesson_id in park_lesson_data) 
 
     return JsonResponse(park_lesson_data)
 
@@ -341,13 +385,13 @@ def save_park_lesson(request):
             # print('Data:', data) # Python dictionary - access values using [] or get() method.
             
             np_lesson_id = data['id']
-            print('NP Lesson_ID:', np_lesson_id)
+            # print('NP Lesson_ID:', np_lesson_id)
 
             # Check if this lesson is already saved
             # if object has npid == np_lesson_id and user_id == request.user 
 
             lesson_exists = Lesson.objects.filter(npid=np_lesson_id).filter(user_id=request.user)
-            print('Lesson Exists:', lesson_exists)
+            # print('Lesson Exists:', lesson_exists)
             
             if not lesson_exists:
 
@@ -355,7 +399,7 @@ def save_park_lesson(request):
                 # url = data.get('url')
                 title = data.get('title')
                 park = data.get('park')
-                print('Save park_code:', park)
+                # print('Save park_code:', park)
                 questionObjective = data.get('questionObjective')
                 gradeLevel = data.get('gradeLevel')
                 commonCore = data.get('commonCore')
@@ -386,6 +430,7 @@ def save_park_lesson(request):
     return JsonResponse({'error': 'POST request required.'})
 
 
+@login_required
 def saved(request):
 
         print('Request', request)
@@ -396,7 +441,7 @@ def saved(request):
         # Get all saved lessons for the specified user.
         lessons = Lesson.objects.filter(user_id=current_user_id) # Returns QuerySet of populated Django models - python objects that contain fields and functions.     
         # lessons = Lesson.objects.filter(user_id=current_user_id).values() # Returns QuerySet of dictionaries for each row in the database. (Performance is very efficient) These dictionaries can then be placed in a list [] or calling the list() constructor - dict object has no attribute serialize
-        print('Saved Lessons Line 361:', lessons)
+        # print('Saved Lessons Line 361:', lessons)
 
         if lessons == None:
             return JsonResponse({'message': 'There are no saved lessons.'})
@@ -407,60 +452,3 @@ def saved(request):
             
             # https://stackoverflow.com/questions/70220201/returning-queryset-as-json-in-django
             return JsonResponse([lesson.serialize() for lesson in lessons], safe=False)
-
-"""
-def update(request):
-
-    # FormData
-    # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
-    if request.method == 'POST':
-
-        print('Edit Request:', request)
-        # print('Edit Request.FILES:', request.FILES)
-
-        id = request.POST.get('id')
-        # print('Edit ID:', id)
-
-        # Capture the edit form data values.
-        notes = request.POST.get('notes')
-        # print('Edit Notes:', notes)
-
-        image = request.FILES['image'] 
-        # print('Edit Image:', image)
-
-        doc_upload = request.FILES['doc-file']
-        # print('Edit Doc Upload:', doc_upload)
-
-        # Get user from the POST request.
-        user_name = request.user
-        author = user_name
-
-        lesson_id = Lesson.objects.get(pk=id) # Lesson object (#)      
-        print('Lesson ID Line 55:', lesson_id)
-
-        lesson = Lesson.objects.get(pk=id) 
-        print('Lesson:', lesson)
-
-        # Set/Save Lesson object hasResources field as True.
-        lesson_id.hasResources = True
-        lesson_id.save()
-
-        resources = Resources()
-        resources.lesson = lesson_id
-        resources.notes = notes
-        resources.author = author
-
-        # The notes, author_id, and lesson_id are saved. The file uploads trigger a TypeError. The file objects are captured in JS but appear empty in the views.py.  
-        if len(image) != 0: # TypeError: object of type 'NoneType' has no len()
-            resources.image = image
-        
-        if len(doc_upload) != 0:
-            resources.doc_upload = doc_upload
-
-        resources.save()
-
-        return JsonResponse({'message': 'Lesson updated successfully.'})
-    
-    else:
-        return JsonResponse({'error': 'POST request required.'}) 
-"""

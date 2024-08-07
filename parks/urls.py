@@ -19,4 +19,8 @@ urlpatterns = [
     # path('get_edit_form', views.get_edit_form, name='get_edit_form'),
     path('get_lesson_to_edit/<int:lesson_id>', views.get_lesson_to_edit, name='get_lesson_to_edit'),
     path('lesson/<int:lesson_id>', views.lesson, name='lesson'),
+    # path('profile/<str:current_user>', views.profile, name='profile'),
+    # path('update_profile', views.update_profile, name='update_profile'),
+    path('update_username', views.update_username, name='update_username'),
+    path('update_password', views.update_password, name='update_password'),
 ]
